@@ -4,6 +4,7 @@
 # 2) Change permissions: chmod +x bot.py
 # 3) Run in loop: while true; do ./bot.py --test prod-like; sleep 1; done
 
+from etf import ETFStrategy
 from valbz import valbz_order
 import argparse
 from collections import deque
@@ -95,61 +96,13 @@ def main():
             # Update current market info with book
             history.update(message)
 
-            # if message["symbol"] in ["VALE", "VALBZ"]:
-            #     pass
-            #     """"""
-            #     sym = message["symbol"]
-            #     last_vale = history.last_ba(sym) if sym == "VALBZ" message["buy"]
-            #     other = "VALE" if m == "VALBZ" else "VALBZ"
-            #     bid, ask = best_price("buy"), best_price("sell")
+        # ETF strat
+        buy_orders, sell_orders = ETFStrategy.etf_strategy(history)
 
-        bond_history_book = history.get("BOND")
-        if bond_history_book:
-            bond_buy_msgs = bond_history_book[-1]["buy"]
-            bond_sell_msgs = bond_history_book[-1]["sell"]
-            buy_orders, sell_orders = BondStrategy.bondStrategy(
-                bond_buy_msgs, bond_sell_msgs)
-
-            for b in buy_orders:
-                exchange.send_add_message(**b)
-            for s in sell_orders:
-                exchange.send_add_message(**s)
-
-        # pennying strat
-        for sym in ["XLF"]:
-            if tick % 20 != 0:
-                break
-            history_book = history.get_last(sym)
-            if history_book:
-                buy_orders, sell_orders, cancel_timers = PennyingStrategy.pennying_strategy(
-                    sym, history_book["buy"], history_book["sell"]
-                )
-                if cancel_timers:
-                    cancel_timer_dict.update(cancel_timers)
-                    id1, id2 = cancel_timers.keys()
-                    pennying_pairs[id1] = id2
-                    pennying_pairs[id2] = id1
-
-                for b in buy_orders:
-                    exchange.send_add_message(**b)
-                for s in sell_orders:
-                    exchange.send_add_message(**s)
-
-                for order_id, cancel_timer in dict(cancel_timer_dict).items():
-                    c = cancel_timer.do_tick()
-                    if c:
-                        cancel_timer_dict.pop(order_id)
-                        exchange.send_cancel_message(**c)
-
-        # valbz orders
-        if message["type"] == "book":
-            orders, cancels = valbz_order(message, history, tick)
-            for b in orders:
-                print("valbz order: ", b["dir"])
-                exchange.send_add_message(**b)
-            for c in cancels:
-                print("cancel orders: ", c)
-                exchange.send_cancel_message(c)
+        for b in buy_orders:
+            exchange.send_add_message(**b)
+        for s in sell_orders:
+            exchange.send_add_message(**s)
 
 
 class ExchangeConnection:
