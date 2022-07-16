@@ -9,7 +9,7 @@ from collections import deque
 import time
 import socket
 import json
-from utils import Dir, PriceHistory
+from utils import Dir, PriceHistory, get_order_id, init_order_id
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # Replace "REPLACEME" with your team name!
@@ -17,25 +17,20 @@ team_name = "shinerperch"
 
 # ~~~~~============== MAIN LOOP ==============~~~~~
 
-order_id = 0
-
 class BondStrategy:
     def bondStrategy(buys, sells):
-        global order_id
         buy_orders = []
         sell_orders = []
         for i in range(len(sells)):
             if sells[i][0] < 1000:
                 buy_orders.append(
-                    dict(order_id=order_id, symbol="BOND", dir=Dir.BUY, price=sells[i][0], size=sells[i][1])
+                    dict(order_id=get_order_id(), symbol="BOND", dir=Dir.BUY, price=sells[i][0], size=sells[i][1])
                 )
-                order_id += 1
 
         for i in range(len(buys)):
             if buys[i][0] > 1000:
                 sell_orders.append(
-                    dict(order_id=order_id, symbol="BOND", dir=Dir.SELL, price=buys[i][0], size=buys[i][1]))
-                order_id += 1
+                    dict(order_id=get_order_id(), symbol="BOND", dir=Dir.SELL, price=buys[i][0], size=buys[i][1]))
         return buy_orders, sell_orders
 
 
@@ -66,6 +61,7 @@ def main():
     vale_last_print_time = time.time()
 
     history = PriceHistory()
+    init_order_id()
 
     # Here is the main loop of the program. It will continue to read and
     # process messages in a loop until a "close" message is received. You
@@ -104,26 +100,6 @@ def main():
 
             # Update current market info with book
             history.update(message)
-
-            # if message["symbol"] == "VALE":
-
-            #     def best_price(side):
-            #         if message[side]:
-            #             return message[side][0][0]
-
-            #     vale_bid_price = best_price("buy")
-            #     vale_ask_price = best_price("sell")
-
-            #     now = time.time()
-
-            #     if now > vale_last_print_time + 1:
-            #         vale_last_print_time = now
-            #         print(
-            #             {
-            #                 "vale_bid_price": vale_bid_price,
-            #                 "vale_ask_price": vale_ask_price,
-            #             }
-            #         )
 
             # if message["symbol"] in ["VALE", "VALBZ"]:
             #     pass

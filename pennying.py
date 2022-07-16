@@ -1,3 +1,5 @@
+from utils import Dir, get_order_id
+
 class PennyingStrategy:
     @staticmethod
     def pennying_strategy(buys, sells, price=None):
@@ -11,6 +13,7 @@ class PennyingStrategy:
 
         out = []
         if price is None:
+            # Naive price estimate
             price = (buys[0][0] + sells[0][0]) / 2
         if max_buy + 1 < price:
-            out
+            out.append(dict(order_id=get_order_id()))
