@@ -30,7 +30,7 @@ def moving_10_day_average(common_stock, adr_stock):
     avg_adr_stock = mean(adr_stock)
 
     diff = avg_common_stock - avg_adr_stock
-    if diff >= 3:
+    if diff >= 5:
         return [avg_adr_stock, avg_common_stock]
 
     return []

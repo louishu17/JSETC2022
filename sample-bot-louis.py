@@ -29,6 +29,11 @@ symbol_trade = {
     "XLF": [],
 }
 
+symbol_positions = {
+    "VALE": 0,
+    "VALBZ": 0
+}
+
 
 class BondStrategy:
     def bondStrategy(buys, sells):
@@ -103,15 +108,8 @@ def main():
             break
         elif message["type"] == "trade":
             print(message)
-            # symbol_trade[message["symbol"]].append(
-            #     [message["price"], message["size"]])
-            # vale_trade_history = symbol_trade["VALE"]
-            # valbz_trade_history = symbol_trade["VALBZ"]
-            # v_strat = valbz_strategy(valbz_trade_history, vale_trade_history)
-            # if v_strat:
-            #     exchange.send_add_message(**v_strat[0])
-            #     exchange.send_convert_message(**v_strat[1])
-            #     exchange.send_add_message(**v_strat[2])
+            symbol_trade[message["symbol"]].append(
+                [message["price"], message["size"]])
         elif message["type"] == "error":
             print(message)
         elif message["type"] == "reject":
@@ -125,6 +123,14 @@ def main():
             # Update current market info with book
             history.update(message)
 
+            vale_trade_history = symbol_trade["VALE"]
+            valbz_trade_history = symbol_trade["VALBZ"]
+            v_strat = valbz_strategy(valbz_trade_history, vale_trade_history)
+            if v_strat:
+                exchange.send_add_message(**v_strat[0])
+                exchange.send_convert_message(**v_strat[1])
+                exchange.send_add_message(**v_strat[2])
+
             # if message["symbol"] in ["VALE", "VALBZ"]:
             #     pass
             #     """"""
@@ -133,14 +139,14 @@ def main():
             #     other = "VALE" if m == "VALBZ" else "VALBZ"
             #     bid, ask = best_price("buy"), best_price("sell")
 
-        if message["type"] == "book":
-            orders, cancels = valbz_order3(message, history, tick)
-            for b in orders:
-                print("valbz order: ", b["dir"])
-                exchange.send_add_message(**b)
-            for c in cancels:
-                print("cancel orders: ", c)
-                exchange.send_cancel_message(c)
+        # if message["type"] == "book":
+        #     orders, cancels = valbz_order3(message, history, tick)
+        #     for b in orders:
+        #         print("valbz order: ", b["dir"])
+        #         exchange.send_add_message(**b)
+        #     for c in cancels:
+        #         print("cancel orders: ", c)
+        #         exchange.send_cancel_message(c)
 
         # bond_history_book = history.get("BOND")
         # if bond_history_book:
