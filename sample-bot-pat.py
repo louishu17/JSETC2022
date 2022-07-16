@@ -124,11 +124,13 @@ def main():
 
         # valbz orders
         if message["type"] == "book":
-            orders = valbz_order(message, history)
-
+            orders, cancels = valbz_order(message, history, tick)
             for b in orders:
                 print("valbz order: ", b["dir"])
                 exchange.send_add_message(**b)
+            for c in cancels:
+                print("cancel orders: ", b["dir"])
+                exchange.send_cancel_message(**c)
 
 
 class ExchangeConnection:
