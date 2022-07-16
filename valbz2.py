@@ -6,7 +6,6 @@ def valbz_strategy(valbz_trade_info, vale_trade_info):
 
     vale_prices = list(map(lambda x: x[0], vale_trade_info))
     valbz_prices = list(map(lambda x: x[0], valbz_trade_info))
-    FAIR_DIFF = 2
 
     if len(vale_prices) >= 10 and len(valbz_prices) >= 10:
         last_10_vale_prices = vale_prices[-10:]
@@ -31,7 +30,7 @@ def moving_10_day_average(common_stock, adr_stock):
     avg_adr_stock = mean(adr_stock)
 
     diff = avg_common_stock - avg_adr_stock
-    if diff >= valbz_strategy.FAIR_DIFF:
+    if diff >= 1:
         return [avg_adr_stock, avg_common_stock]
 
     return []
