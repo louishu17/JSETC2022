@@ -92,7 +92,7 @@ class PriceHistory:
         if sym in self.history and len(self.history) > 0:
             if n > len(self.history):
                 n = 0
-            for t in list(self.history)[sym][-n:]:
+            for t in list(self.history[sym])[-n:]:
                 if len(t["buy"]) > 0 and len(t["sell"]) > 0:
                     res.append((t["buy"][0], t["sell"][0]))
             return res if res != [] else None
