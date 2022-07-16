@@ -30,6 +30,8 @@ def momentum_order(message, history, tick):
         hist_prices = history.last_n_prices(sym, 100)
         if hist_prices and len(hist_prices) > 50:
             ma = sum(hist_prices[-MA_LENGTH:]) / 1.0 / MA_LENGTH
+            print(ma)
+            print(current_price)
             if current_price < ma:
                 orders.append(
                     dict(order_id=get_order_id(), symbol=sym, dir=Dir.SELL, price=int(current_price), size=1)
