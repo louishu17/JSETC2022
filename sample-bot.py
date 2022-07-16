@@ -120,17 +120,17 @@ def main():
             #     other = "VALE" if m == "VALBZ" else "VALBZ"
             #     bid, ask = best_price("buy"), best_price("sell")
 
-        # bond_history_book = history.get("BOND")
-        # if bond_history_book:
-        #     bond_buy_msgs = bond_history_book[-1]["buy"]
-        #     bond_sell_msgs = bond_history_book[-1]["sell"]
-        #     buy_orders, sell_orders = BondStrategy.bondStrategy(
-        #         bond_buy_msgs, bond_sell_msgs)
+        bond_history_book = history.get("BOND")
+        if bond_history_book:
+            bond_buy_msgs = bond_history_book[-1]["buy"]
+            bond_sell_msgs = bond_history_book[-1]["sell"]
+            buy_orders, sell_orders = BondStrategy.bondStrategy(
+                bond_buy_msgs, bond_sell_msgs)
 
-        #     for b in buy_orders:
-        #         exchange.send_add_message(**b)
-        #     for s in sell_orders:
-        #         exchange.send_add_message(**s)
+            for b in buy_orders:
+                exchange.send_add_message(**b)
+            for s in sell_orders:
+                exchange.send_add_message(**s)
 
         # pennying strat
         for sym in ["XLF"]:
@@ -163,10 +163,10 @@ def main():
             orders, cancels = valbz_order(message, history, tick)
             for b in orders:
                 print("valbz order: ", b["dir"])
-                # exchange.send_add_message(**b)
+                exchange.send_add_message(**b)
             for c in cancels:
                 print("cancel orders: ", c)
-                # exchange.send_cancel_message(c)
+                exchange.send_cancel_message(c)
 
 
 class ExchangeConnection:
