@@ -126,6 +126,7 @@ def main():
                 exchange.send_add_message(**s)
 
         # valbz orders
+        """
         if message["type"] == "book":
             orders, cancels = valbz_order3(message, history, tick)
             for b in orders:
@@ -134,7 +135,7 @@ def main():
             for c in cancels:
                 print("cancel orders: ", c)
                 exchange.send_cancel_message(c)
-
+        """
         # xlf orders
         if message["type"] == "book":
             orders, cancels = momentum_order(message, history, tick)
