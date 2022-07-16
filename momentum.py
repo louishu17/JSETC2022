@@ -1,7 +1,7 @@
 from enum import Enum
 import random
 
-MA_LENGTH = 30
+MA_LENGTH = 40
 CANCEL_IN = 10
 
 up = True
@@ -24,7 +24,7 @@ def invert(order):
 def momentum_order(message, history, tick):
     orders = []
     cancels = []
-    sym = "VALBZ"
+    sym = "GS"
     global up
     if message["symbol"] == sym:
         if len(message["buy"]) == 0 or len(message["sell"]) == 0:
