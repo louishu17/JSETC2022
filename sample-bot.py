@@ -42,10 +42,11 @@ class PriceHistory:
         self.history[msg["symbol"]].append({
             "buy": msg["buy"],
             "sell": msg["sell"],
-            "price": (msg["buy"][0][0] + msg["sell"][0][0]) / 2,
         })
 
     def get(self, sym):
+        if sym not in self.history:
+            return []
         return self.history[sym]
 
     def last_price(self, sym):
@@ -59,22 +60,25 @@ class PriceHistory:
 self.history[sym][-1]["sell"][0]
 """
 
+order_id = 0
 
 class BondStrategy:
     def bondStrategy(buys, sells):
+        global order_id
         buy_orders = []
         sell_orders = []
         for i in range(len(sells)):
             if sells[i][0] < 1000:
                 buy_orders.append(
-                    order_id=i, symbol="BOND", dir=Dir.BUY, price=sells[i][0], size=sells[i][1]
+                    dict(order_id=order_id, symbol="BOND", dir=Dir.BUY, price=sells[i][0], size=sells[i][1])
                 )
+                order_id += 1
 
         for i in range(len(buys)):
             if buys[i][0] > 1000:
                 sell_orders.append(
-                    order_id=i, symbol="BOND", dir=Dir.SELL, price=buys[i][0], size=buys[i][1])
-
+                    dict(order_id=order_id, symbol="BOND", dir=Dir.SELL, price=buys[i][0], size=buys[i][1]))
+                order_id += 1
         return buy_orders, sell_orders
 
 
@@ -122,7 +126,6 @@ def main():
     while True:
         tick += 1
         message = exchange.read_message()
-        history.update(message)
         # Some of the message types below happen infrequently and contain
         # important information to help you understand what your bot is doing,
         # so they are printed in full. We recommend not always printing every
@@ -137,6 +140,8 @@ def main():
         elif message["type"] == "reject":
             print(message)
         elif message["type"] == "fill":
+            print(message)
+        elif message["type"] == "ack":
             print(message)
         elif message["type"] == "book":
 
@@ -172,15 +177,16 @@ def main():
             #     bid, ask = best_price("buy"), best_price("sell")
 
         bond_history_book = history.get("BOND")
-        bond_buy_msgs = bond_history_book["buy"]
-        bond_sell_msgs = bond_history_book["sell"]
-        buy_orders, sell_orders = BondStrategy.bondStrategy(
-            bond_buy_msgs, bond_sell_msgs)
+        if bond_history_book:
+            bond_buy_msgs = bond_history_book[-1]["buy"]
+            bond_sell_msgs = bond_history_book[-1]["sell"]
+            buy_orders, sell_orders = BondStrategy.bondStrategy(
+                bond_buy_msgs, bond_sell_msgs)
 
-        for b in buy_orders:
-            exchange.send_add_message(b)
-        for s in sell_orders:
-            exchange.send_add_message(s)
+            for b in buy_orders:
+                exchange.send_add_message(**b)
+            for s in sell_orders:
+                exchange.send_add_message(**s)
 
 
 class Dir(str, Enum):
