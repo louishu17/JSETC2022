@@ -101,8 +101,10 @@ def main():
             id1 = message["order_id"]
             if id1 in pennying_pairs:
                 id2 = pennying_pairs[id1]
-                cancel_timer_dict.pop(id1)
-                cancel_timer_dict.pop(id2)
+                if id1 in cancel_timer_dict:
+                    cancel_timer_dict.pop(id1)
+                if id2 in cancel_timer_dict:
+                    cancel_timer_dict.pop(id2)
         elif message["type"] == "ack":
             print(message)
         elif message["type"] == "book":
@@ -150,7 +152,7 @@ def main():
                 for s in sell_orders:
                     exchange.send_add_message(**s)
 
-                for order_id, cancel_timer in cancel_timer_dict.items():
+                for order_id, cancel_timer in dict(cancel_timer_dict).items():
                     c = cancel_timer.do_tick()
                     if c:
                         cancel_timer_dict.pop(order_id)
