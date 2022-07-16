@@ -123,8 +123,8 @@ def main():
         #     for s in sell_orders:
         #         exchange.send_add_message(**s)
 
-        for sym in ["GS", "MS", "WFC", "XLF"]:
-            if tick % 20 != 0:
+        for sym in ["XLF"]:
+            if tick % 5 != 0:
                 break
             history_book = history.get_last(sym)
             if history_book:
@@ -140,7 +140,7 @@ def main():
                     exchange.send_add_message(**s)
 
                 for i, cancel_timer in enumerate(cancel_timer_list):
-                    c = cancel_timer.do_tick(sym, history)
+                    c = cancel_timer.do_tick()
                     if c:
                         cancel_timer_list.pop(i)
                         exchange.send_cancel_message(**c)
@@ -150,10 +150,10 @@ def main():
             orders, cancels = valbz_order(message, history, tick)
             for b in orders:
                 print("valbz order: ", b["dir"])
-                exchange.send_add_message(**b)
+                # exchange.send_add_message(**b)
             for c in cancels:
                 print("cancel orders: ", c)
-                exchange.send_cancel_message(c)
+                # exchange.send_cancel_message(c)
 
 
 class ExchangeConnection:
