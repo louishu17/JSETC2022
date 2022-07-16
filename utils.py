@@ -86,6 +86,7 @@ class PriceHistory:
                 return self.history[sym][-1]["buy"][0], self.history[sym][-1]["sell"][0]
         return None
 
+
 class CancelTimer:
     def __init__(self, order_id: int):
         self.order_id = order_id

@@ -13,7 +13,7 @@ class PennyingStrategy:
 
         buy_orders = []
         sell_orders = []
-        cancel_timers = []
+        cancel_timers = {}
         if price is None:
             # Naive price estimate
             price = (buys[0][0] + sells[0][0]) / 2
@@ -34,10 +34,10 @@ class PennyingStrategy:
                 price=min_sell - 1,
                 size=sells[0][1],
                 ))
-            cancel_timers.append(CancelTimer(
+            cancel_timers[buy_order_id] = CancelTimer(
                 order_id=buy_order_id,
-            ))
-            cancel_timers.append(CancelTimer(
+            )
+            cancel_timers[sell_order_id] = CancelTimer(
                 order_id=sell_order_id,
-            ))
+            )
         return buy_orders, sell_orders, cancel_timers

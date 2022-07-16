@@ -64,8 +64,8 @@ def main():
 
     history = PriceHistory()
     init()
-    cancel_timer_list = []
-    pennying_pairs = []
+    cancel_timer_dict = {}
+    pennying_pairs = {}
 
     # Here is the main loop of the program. It will continue to read and
     # process messages in a loop until a "close" message is received. You
@@ -97,6 +97,12 @@ def main():
             print(message)
         elif message["type"] == "fill":
             print(message)
+            # If pennying position is filled, prevent other position from canceling
+            id1 = message["order_id"]
+            if id1 in pennying_pairs:
+                id2 = pennying_pairs[id1]
+                cancel_timer_dict.pop(id1)
+                cancel_timer_dict.pop(id2)
         elif message["type"] == "ack":
             print(message)
         elif message["type"] == "book":
@@ -134,17 +140,20 @@ def main():
                     sym, history_book["buy"], history_book["sell"]
                 )
                 if cancel_timers:
-                    cancel_timer_list.extend(cancel_timers)
+                    cancel_timer_dict.update(cancel_timers)
+                    id1, id2 = cancel_timers.keys()
+                    pennying_pairs[id1] = id2
+                    pennying_pairs[id2] = id1
 
                 for b in buy_orders:
                     exchange.send_add_message(**b)
                 for s in sell_orders:
                     exchange.send_add_message(**s)
 
-                for i, cancel_timer in enumerate(cancel_timer_list):
+                for order_id, cancel_timer in cancel_timer_dict.items():
                     c = cancel_timer.do_tick()
                     if c:
-                        cancel_timer_list.pop(i)
+                        cancel_timer_dict.pop(order_id)
                         exchange.send_cancel_message(**c)
 
         # valbz orders
