@@ -15,11 +15,11 @@ def valbz_strategy(valbz_trade_info, vale_trade_info):
             last_10_valbz_prices, last_10_vale_prices)
         if avg_strat:
             res = []
-            res.append({"type": "add", "order_id": get_order_id(),
+            res.append({"order_id": get_order_id(),
                        "symbol": "VALE", "price": avg_strat[0] + 1, "size": 10})
-            res.append({"type": "convert", "order_id": get_order_id(),
+            res.append({"order_id": get_order_id(),
                        "symbol": "VALBZ", "size": 10})
-            res.append({"type": "sell", "order_id": get_order_id(),
+            res.append({"order_id": get_order_id(),
                        "symbol": "VALBZ", "price": avg_strat[1] + 1, "size": 10})
             return res
     return []
