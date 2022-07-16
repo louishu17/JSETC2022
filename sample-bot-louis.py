@@ -124,17 +124,17 @@ def main():
             #     other = "VALE" if m == "VALBZ" else "VALBZ"
             #     bid, ask = best_price("buy"), best_price("sell")
 
-        bond_history_book = history.get("BOND")
-        if bond_history_book:
-            bond_buy_msgs = bond_history_book[-1]["buy"]
-            bond_sell_msgs = bond_history_book[-1]["sell"]
-            buy_orders, sell_orders = BondStrategy.bondStrategy(
-                bond_buy_msgs, bond_sell_msgs)
+        # bond_history_book = history.get("BOND")
+        # if bond_history_book:
+        #     bond_buy_msgs = bond_history_book[-1]["buy"]
+        #     bond_sell_msgs = bond_history_book[-1]["sell"]
+        #     buy_orders, sell_orders = BondStrategy.bondStrategy(
+        #         bond_buy_msgs, bond_sell_msgs)
 
-            for b in buy_orders:
-                exchange.send_add_message(**b)
-            for s in sell_orders:
-                exchange.send_add_message(**s)
+        #     for b in buy_orders:
+        #         exchange.send_add_message(**b)
+        #     for s in sell_orders:
+        #         exchange.send_add_message(**s)
 
         vale_trade_history = symbol_trade["VALE"]
         valbz_trade_history = symbol_trade["VALBZ"]
@@ -145,7 +145,7 @@ def main():
 
 def write_to_exchange(exchange, obj):
     json.dump(obj, exchange)
-    exchange.write_message("\n")
+    exchange._write_message("\n")
 
 
 class ExchangeConnection:
