@@ -65,7 +65,6 @@ def main():
     vale_last_print_time = time.time()
 
     history = PriceHistory()
-    init_order_id()
 
     # Here is the main loop of the program. It will continue to read and
     # process messages in a loop until a "close" message is received. You
