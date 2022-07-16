@@ -4,7 +4,7 @@
 # 2) Change permissions: chmod +x bot.py
 # 3) Run in loop: while true; do ./bot.py --test prod-like; sleep 1; done
 
-from valbz import valbz_order
+from valbz import valbz_order, vale_order
 import argparse
 from collections import deque
 import time
@@ -126,17 +126,25 @@ def main():
                 exchange.send_add_message(**s)
 
         # valbz orders
-        """
+
         if message["type"] == "book":
-            orders, cancels = valbz_order3(message, history, tick)
+            orders, cancels = valbz_order(message, history, tick)
             for b in orders:
                 print("valbz order: ", b["dir"])
                 exchange.send_add_message(**b)
             for c in cancels:
                 print("cancel orders: ", c)
                 exchange.send_cancel_message(c)
-        """
+            orders, transfers = vale_order(history)
+            for b in orders:
+                print("vale buy order: ", b["dir"])
+                exchange.send_add_message(**b)
+            for c in transfers:
+                print("vale transfer orders: ", c)
+                exchange.send_convert_message(**c)
+
         # xlf orders
+        """
         if message["type"] == "book":
             orders, cancels = momentum_order(message, history, tick)
             for b in orders:
@@ -145,7 +153,7 @@ def main():
             for c in cancels:
                 print("cancel orders: ", c)
                 exchange.send_cancel_message(c)
-
+        """
 
 class ExchangeConnection:
     def __init__(self, args):

@@ -26,6 +26,34 @@ def invert(order):
     return order
 
 
+def vale_order(history):
+    # call this on VALBZ order
+    orders = []
+    converts = []
+    valbz = history.last_ba("VALBZ")
+    vale = history.last_ba("VALE")
+    if valbz and vale:
+        valbz_bid_price, valbz_ask_price = valbz
+        vale_bid_price, vale_ask_price = vale
+        if valbz_bid_price[0] - vale_ask_price[0] >= 2:
+            # sell valbz, buy vale
+            amt = min(vale_ask_price[1], valbz_bid_price[1])
+            orders.append(
+                dict(order_id=get_order_id(), symbol="VALE",
+                     dir=Dir.BUY, price=vale_ask_price[0] + 1, size=amt)
+            )
+            converts.append(
+                dict(order_id=get_order_id(), symbol="VALE",
+                     dir=Dir.SELL, size=amt)
+            )
+            orders.append(
+                dict(order_id=get_order_id(), symbol="VALBZ",
+                     dir=Dir.SELL, price=valbz_bid_price[0] - 1, size=amt)
+            )
+
+    return orders, converts
+
+
 def valbz_order(message, history, tick):
     orders = []
     cancels = []
