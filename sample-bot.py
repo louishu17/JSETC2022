@@ -136,9 +136,10 @@ def main():
                 for s in sell_orders:
                     exchange.send_add_message(**s)
 
-                cancel_orders = position_closer.tick(sym, history)
-                for c in cancel_orders:
-                    exchange.send_cancel_message(**c)
+                if position_closer:
+                    cancel_orders = position_closer.tick(sym, history)
+                    for c in cancel_orders:
+                        exchange.send_cancel_message(**c)
 
 
 class ExchangeConnection:

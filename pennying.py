@@ -13,6 +13,7 @@ class PennyingStrategy:
 
         buy_orders = []
         sell_orders = []
+        position_closer = None
         if price is None:
             # Naive price estimate
             price = (buys[0][0] + sells[0][0]) / 2

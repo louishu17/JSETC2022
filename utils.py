@@ -104,3 +104,4 @@ class PositionCloser:
             c1 = self.trigger1.cancel()
             c2 = self.trigger2.cancel()
             return [c1, c2]
+        return []
