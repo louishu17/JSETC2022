@@ -140,12 +140,9 @@ def main():
         valbz_trade_history = symbol_trade["VALBZ"]
         v_strat = valbz_strategy(valbz_trade_history, vale_trade_history)
         if v_strat:
-            write_to_exchange(exchange, v_strat)
-
-
-def write_to_exchange(exchange, obj):
-    json.dump(obj, exchange)
-    exchange._write_message("\n")
+            exchange.send_add_message(v_strat[[0]])
+            exchange.send_convert_message(v_strat[1])
+            exchange.send_add_message(v_strat[2])
 
 
 class ExchangeConnection:
