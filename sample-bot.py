@@ -6,59 +6,16 @@
 
 import argparse
 from collections import deque
-from enum import Enum
 import time
 import socket
 import json
+from utils import Dir, PriceHistory
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # Replace "REPLACEME" with your team name!
 team_name = "shinerperch"
 
 # ~~~~~============== MAIN LOOP ==============~~~~~
-
-
-class PriceHistory:
-    """
-    run history.update(msg) every book msg
-    history.get(sym) -> [
-        {
-            "buy": list of buy orders as [price, qty],
-            "sell": list of sell orders as [price, qty],
-            "price": avg of max buy and min sell
-        }, ...
-    ]
-    """
-
-    def __init__(self):
-        self.history = {}
-
-    def update(self, msg):
-        if msg["type"] != "book":
-            print("WARN: PriceHistory update not a book msg")
-
-        if msg["symbol"] not in self.history:
-            self.history[msg["symbol"]] = deque(maxlen=100)
-        self.history[msg["symbol"]].append({
-            "buy": msg["buy"],
-            "sell": msg["sell"],
-        })
-
-    def get(self, sym):
-        if sym not in self.history:
-            return []
-        return self.history[sym]
-
-    def last_price(self, sym):
-        return self.history[sym][-1]["price"]
-
-    def last_ba(self, sym):
-        """# returns tuple: ([bid, quantity], [ask, quantity])
-        return self.history[sym][-1]["buy"][0],
-
-
-self.history[sym][-1]["sell"][0]
-"""
 
 order_id = 0
 
@@ -187,11 +144,6 @@ def main():
                 exchange.send_add_message(**b)
             for s in sell_orders:
                 exchange.send_add_message(**s)
-
-
-class Dir(str, Enum):
-    BUY = "BUY"
-    SELL = "SELL"
 
 
 class ExchangeConnection:
