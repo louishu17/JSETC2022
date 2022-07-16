@@ -141,7 +141,7 @@ def main():
                 exchange.send_add_message(**b)
             for c in transfers:
                 print("vale transfer orders: ", c)
-                exchange.send_convert_message(c)
+                exchange.send_convert_message(**c)
 
         # xlf orders
         """
