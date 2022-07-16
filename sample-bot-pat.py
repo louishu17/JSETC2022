@@ -4,7 +4,7 @@
 # 2) Change permissions: chmod +x bot.py
 # 3) Run in loop: while true; do ./bot.py --test prod-like; sleep 1; done
 
-from valbz import valbz_order
+from valbz import valbz_order, vale_order
 import argparse
 from collections import deque
 import time
