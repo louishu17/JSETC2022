@@ -121,7 +121,7 @@ def main():
     while True:
         tick += 1
         message = exchange.read_message()
-        history.update_book(message)
+        history.update(message)
         # Some of the message types below happen infrequently and contain
         # important information to help you understand what your bot is doing,
         # so they are printed in full. We recommend not always printing every
@@ -166,7 +166,7 @@ def main():
             #     pass
             #     """"""
             #     sym = message["symbol"]
-            #     last_vale = sym == "VALE" message["buy"]
+            #     last_vale = history.last_ba(sym) if sym == "VALE" message["buy"]
             #     other = "VALE" if m == "VALBZ" else "VALBZ"
             #     bid, ask = best_price("buy"), best_price("sell")
 
