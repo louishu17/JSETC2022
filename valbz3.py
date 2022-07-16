@@ -42,8 +42,8 @@ def valbz_order3(message, history, tick):
             valb_prices = [list(t) for t in zip(*valbz)]
             valbz_bid_prices = valb_prices[0]
             valbz_ask_prices = valb_prices[1]
-            print(valbz_bid_prices)
-            print(valbz_ask_prices)
+            valbz_bid_prices = list(map(lambda x: x[0], valbz_bid_prices))
+            valbz_ask_prices = list(map(lambda x: x[0], valbz_ask_prices))
             fair_price = (mean(valbz_bid_prices) + mean(valbz_ask_prices)) / 2
             if fair_price > 0.01:
                 if vale_bid_price[0] / 1.0 / fair_price > 1.003:
