@@ -15,7 +15,7 @@ order_ids = {}
 close_future_orders = {}
 net = 0
 
-def invert_order(order):
+def invert(order):
     order = order.copy()
     order["dir"] = Dir.BUY if order["dir"] == Dir.SELL else Dir.SELL
     return order
