@@ -124,7 +124,7 @@ def main():
 
         valbz_history_book = history.get("VALE")
         if valbz_history_book:
-            message = bond_history_book[-1]
+            message = valbz_history_book[-1]
             orders = valbz_order(message, history)
 
             for b in orders:
