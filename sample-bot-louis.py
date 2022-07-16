@@ -28,6 +28,7 @@ symbol_trade = {
     "XLF": [],
 }
 
+
 class BondStrategy:
     def bondStrategy(buys, sells):
         buy_orders = []
