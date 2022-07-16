@@ -1,8 +1,6 @@
 from enum import Enum
 import random
 
-from utils import mean
-
 CANCEL_IN = 15
 CLOSE_IN = 100
 
@@ -24,8 +22,7 @@ net = 0
 def invert(order):
     order = order.copy()
     order["dir"] = Dir.BUY if order["dir"] == Dir.SELL else Dir.SELL
-    order["price"] = int(
-        order["price"] // 10) if order["dir"] == Dir.SELL else int(order["price"] * 10)
+    # order["price"] = int(order["price"] // 10) if order["dir"] == Dir.SELL else int(order["price"] * 10)
     return order
 
 
@@ -38,10 +35,10 @@ def valbz_order(message, history, tick):
             return orders, cancels
         vale_bid_price = message["buy"][0]  # these are tuples
         vale_ask_price = message["sell"][0]
-        valbz = history.last_n_ba("VALBZ")
+        valbz = history.last_ba("VALBZ")
         if valbz:
-            valbz_bid_prices, valbz_ask_prices = valbz
-            fair_price = (mean(valbz_bid_prices) + mean(valbz_ask_prices)) / 2
+            valbz_bid_price, valbz_ask_price = valbz
+            fair_price = (valbz_bid_price[0] + valbz_ask_price[0]) / 2
             if fair_price > 0.01:
                 if vale_bid_price[0] / 1.0 / fair_price > 1.003:
                     # sell VALE
