@@ -1,5 +1,5 @@
 from enum import Enum
-
+import random
 class Dir(str, Enum):
     BUY = "BUY"
     SELL = "SELL"
