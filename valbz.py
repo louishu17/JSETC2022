@@ -29,14 +29,14 @@ def valbz_order(message, history, tick):
                 print("got here!")
                 if vale_bid_price[0] / fair_price > 1.00:
                     # sell VALE
-                    price = vale_ask_price[0] - 0.01
+                    price = vale_bid_price[0]
                     orders.append(
                         dict(order_id=get_order_id(), symbol="VALE", dir=Dir.SELL, price=price, size=vale_bid_price[1])
                     )
                     # sells.append(orders[-1])
                 elif vale_ask_price[0] / fair_price < 1.00:
                     # buy VALE
-                    price = vale_bid_price[0] + 0.01
+                    price = vale_ask_price[0]
                     orders.append(
                         dict(order_id=get_order_id(), symbol="VALE", dir=Dir.BUY, price=price, size=vale_ask_price[1])
                     )
