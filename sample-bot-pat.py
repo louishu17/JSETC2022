@@ -122,13 +122,12 @@ def main():
             for s in sell_orders:
                 exchange.send_add_message(**s)
 
-        valbz_history_book = history.get("VALE")
-        if valbz_history_book:
-            message = valbz_history_book[-1]
-            orders = valbz_order(message, history)
+        # valbz orders
+        orders = valbz_order(message, history)
 
-            for b in orders:
-                exchange.send_add_message(**b)
+        for b in orders:
+            print("valbz order: ", b["dir"])
+            exchange.send_add_message(**b)
 
 
 class ExchangeConnection:
