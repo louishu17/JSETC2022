@@ -65,6 +65,7 @@ def main():
     history = PriceHistory()
     init()
     cancel_timer_list = []
+    pennying_pairs = []
 
     # Here is the main loop of the program. It will continue to read and
     # process messages in a loop until a "close" message is received. You
@@ -123,16 +124,17 @@ def main():
         #     for s in sell_orders:
         #         exchange.send_add_message(**s)
 
+        # pennying strat
         for sym in ["XLF"]:
-            if tick % 5 != 0:
+            if tick % 20 != 0:
                 break
             history_book = history.get_last(sym)
             if history_book:
-                buy_orders, sell_orders, cancel_timer = PennyingStrategy.pennying_strategy(
+                buy_orders, sell_orders, cancel_timers = PennyingStrategy.pennying_strategy(
                     sym, history_book["buy"], history_book["sell"]
                 )
-                if cancel_timer:
-                    cancel_timer_list.append(cancel_timer)
+                if cancel_timers:
+                    cancel_timer_list.extend(cancel_timers)
 
                 for b in buy_orders:
                     exchange.send_add_message(**b)

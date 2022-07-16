@@ -118,18 +118,3 @@ class CancelTrigger:
 
     def cancel(self):
         return dict(order_id=self.order_id)
-
-
-class PositionCloser:
-    def __init__(self, trigger1: CancelTrigger, trigger2: CancelTrigger):
-        self.trigger1 = trigger1
-        self.trigger2 = trigger2
-
-    def tick(self, sym: str, history: PriceHistory):
-        c1 = self.trigger1.tick(sym, history)
-        c2 = self.trigger2.tick(sym, history)
-        if c1 or c2:
-            c1 = self.trigger1.cancel()
-            c2 = self.trigger2.cancel()
-            return [c1, c2]
-        return []
