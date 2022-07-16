@@ -122,6 +122,9 @@ def main():
                 exchange.send_add_message(**s)
 
 
+def write_to_exchange(exchange, obj):
+    json.dump(obj, exchange)
+
 class ExchangeConnection:
     def __init__(self, args):
         self.message_timestamps = deque(maxlen=500)

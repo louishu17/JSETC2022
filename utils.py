@@ -13,9 +13,14 @@ def get_order_id():
     return order_id
 
 
+def mean(ls):
+    return sum(ls) // len(ls)
+
+
 class Dir(str, Enum):
     BUY = "BUY"
     SELL = "SELL"
+    CONVERT = "CONVERT"
 
 
 class PriceHistory:
