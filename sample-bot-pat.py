@@ -123,11 +123,12 @@ def main():
                 exchange.send_add_message(**s)
 
         # valbz orders
-        orders = valbz_order(message, history)
-
-        for b in orders:
-            print("valbz order: ", b["dir"])
-            exchange.send_add_message(**b)
+        if message["type"] == "book":
+            orders = valbz_order(message, history)
+    
+            for b in orders:
+                print("valbz order: ", b["dir"])
+                exchange.send_add_message(**b)
 
 
 class ExchangeConnection:
