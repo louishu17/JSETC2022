@@ -22,6 +22,10 @@ symbol_trade = {
     "BOND": [],
     "VALE": [],
     "VALBZ": [],
+    "GS": [],
+    "MS": [],
+    "WFC": [],
+    "XLF": [],
 }
 
 
