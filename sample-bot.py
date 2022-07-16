@@ -117,16 +117,17 @@ def main():
             buy_orders, sell_orders = BondStrategy.bondStrategy(
                 bond_buy_msgs, bond_sell_msgs)
 
-            for b in buy_orders:
-                exchange.send_add_message(**b)
-            for s in sell_orders:
-                exchange.send_add_message(**s)
+#            for b in buy_orders:
+#                exchange.send_add_message(**b)
+#            for s in sell_orders:
+#                exchange.send_add_message(**s)
 
         for sym in ["GS", "MS", "WFC", "XLF"]:
-            if tick % 100 != 0:
+            if tick % 20 != 0:
                 break
             history_book = history.get(sym)
-            if history_book:
+            if history_book is not None:
+                print(history_book)
                 buy_orders, sell_orders, cancel_triggers = PennyingStrategy.pennying_strategy(
                     sym, history_book[-1]["buy"], history_book[-1]["sell"]
                 )

@@ -71,8 +71,9 @@ class CancelTrigger:
         self.action = action
 
     def tick(self, sym: str, history: PriceHistory):
-        fair_price = (history[sym]["buy"][0][0] + history[sym]["sell"][0][0]) / 2
-        return self.tick_helper(self, fair_price)
+        history_book = history.get(sym)
+        fair_price = (history_book[-1]["buy"][0][0] + history_book[-1]["sell"][0][0]) / 2
+        return self.tick_helper(fair_price)
 
     def tick_helper(self, fair_price: int):
         cancel_order = None
@@ -81,3 +82,4 @@ class CancelTrigger:
         elif self.action is Dir.SELL and fair_price > self.trigger_price:
             cancel_order = dict(order_id=self.order_id)
         return cancel_order
+
