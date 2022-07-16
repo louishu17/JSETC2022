@@ -8,7 +8,7 @@ class ETFStrategy:
         fair_prices = {}
         for sym in ["BOND", "GS", "MS", "WFC"]:
             history_book = history.get_last(sym)
-            if not history_book["buy"] or not history_book["sell"]:
+            if not history_book or not history_book["buy"] or not history_book["sell"]:
                 return [], []
             fair_prices[sym] = (history_book["buy"][0][0] + history_book["sell"][0][0]) / 2
         etf_price = (
@@ -19,7 +19,7 @@ class ETFStrategy:
         ) / 10
 
         history_book = history.get_last("XLF")
-        if not history_book["buy"] or not history_book["sell"]:
+        if not history_book or not history_book["buy"] or not history_book["sell"]:
             return [], []
         buys = history_book["buy"]
         sells = history_book["sell"]
