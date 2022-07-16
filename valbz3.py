@@ -37,9 +37,9 @@ def valbz_order3(message, history, tick):
             return orders, cancels
         vale_bid_price = message["buy"][0]  # these are tuples
         vale_ask_price = message["sell"][0]
-        valbz = history.last_n_ba("VALBZ", 10)
+        valbz = history.last_n_ba("VALBZ", 100)
         if valbz:
-            valbz_bid_prices, valbz_ask_prices = valbz
+            valbz_bid_prices, valbz_ask_prices = [list(t) for t in zip(*valbz)]
             fair_price = (mean(valbz_bid_prices) + mean(valbz_ask_prices)) / 2
             if fair_price > 0.01:
                 if vale_bid_price[0] / 1.0 / fair_price > 1.003:
