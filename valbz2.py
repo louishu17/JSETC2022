@@ -1,5 +1,5 @@
 
-from utils import Dir, PriceHistory, get_order_id, init_order_id, mean
+from utils import Dir, PriceHistory, get_order_id, mean
 
 
 def valbz_strategy(valbz_trade_info, vale_trade_info):
