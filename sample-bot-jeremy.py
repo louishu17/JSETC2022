@@ -4,54 +4,22 @@
 # 2) Change permissions: chmod +x bot.py
 # 3) Run in loop: while true; do ./bot.py --test prod-like; sleep 1; done
 
+from etf import ETFStrategy
+from valbz import valbz_order
 import argparse
 from collections import deque
 import time
 import socket
 import json
-from utils import Dir, PriceHistory, get_order_id, init
-from valbz2 import valbz_strategy
-from valbz3 import valbz_order3
+from utils import Dir, PriceHistory, do_tick, get_order_id, init
+from pennying import PennyingStrategy
+from bond import BondStrategy
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # Replace "REPLACEME" with your team name!
 team_name = "shinerperch"
 
 # ~~~~~============== MAIN LOOP ==============~~~~~
-
-symbol_trade = {
-    "BOND": [],
-    "VALE": [],
-    "VALBZ": [],
-    "GS": [],
-    "MS": [],
-    "WFC": [],
-    "XLF": [],
-}
-
-symbol_positions = {
-    "VALE": 0,
-    "VALBZ": 0
-}
-
-
-class BondStrategy:
-    def bondStrategy(buys, sells):
-        buy_orders = []
-        sell_orders = []
-        for i in range(len(sells)):
-            if sells[i][0] < 1000:
-                buy_orders.append(
-                    dict(order_id=get_order_id(), symbol="BOND",
-                         dir=Dir.BUY, price=sells[i][0], size=sells[i][1])
-                )
-
-        for i in range(len(buys)):
-            if buys[i][0] > 1000:
-                sell_orders.append(
-                    dict(order_id=get_order_id(), symbol="BOND", dir=Dir.SELL, price=buys[i][0], size=buys[i][1]))
-        return buy_orders, sell_orders
-
 
 def main():
     args = parse_arguments()
@@ -80,6 +48,8 @@ def main():
 
     history = PriceHistory()
     init()
+    cancel_timer_dict = {}
+    pennying_pairs = {}
 
     # Here is the main loop of the program. It will continue to read and
     # process messages in a loop until a "close" message is received. You
@@ -93,9 +63,8 @@ def main():
     # message. Sending a message in response to every exchange message will
     # cause a feedback loop where your bot's messages will quickly be
     # rate-limited and ignored. Please, don't do that!
-    tick = 0
     while True:
-        tick += 1
+        tick = do_tick()
         message = exchange.read_message()
         # Some of the message types below happen infrequently and contain
         # important information to help you understand what your bot is doing,
@@ -106,16 +75,20 @@ def main():
         if message["type"] == "close":
             print("The round has ended")
             break
-        elif message["type"] == "trade":
-            print(message)
-            symbol_trade[message["symbol"]].append(
-                [message["price"], message["size"]])
         elif message["type"] == "error":
             print(message)
         elif message["type"] == "reject":
             print(message)
         elif message["type"] == "fill":
             print(message)
+            # If pennying position is filled, prevent other position from canceling
+            id1 = message["order_id"]
+            if id1 in pennying_pairs:
+                id2 = pennying_pairs[id1]
+                if id1 in cancel_timer_dict:
+                    cancel_timer_dict.pop(id1)
+                if id2 in cancel_timer_dict:
+                    cancel_timer_dict.pop(id2)
         elif message["type"] == "ack":
             print(message)
         elif message["type"] == "book":
@@ -123,42 +96,13 @@ def main():
             # Update current market info with book
             history.update(message)
 
-            vale_trade_history = symbol_trade["VALE"]
-            valbz_trade_history = symbol_trade["VALBZ"]
-            v_strat = valbz_strategy(valbz_trade_history, vale_trade_history)
-            if v_strat:
-                exchange.send_add_message(**v_strat[0])
-                exchange.send_convert_message(**v_strat[1])
-                exchange.send_add_message(**v_strat[2])
+        # ETF strat
+        buy_orders, sell_orders = ETFStrategy.etf_strategy(history)
 
-            # if message["symbol"] in ["VALE", "VALBZ"]:
-            #     pass
-            #     """"""
-            #     sym = message["symbol"]
-            #     last_vale = history.last_ba(sym) if sym == "VALBZ" message["buy"]
-            #     other = "VALE" if m == "VALBZ" else "VALBZ"
-            #     bid, ask = best_price("buy"), best_price("sell")
-
-        # if message["type"] == "book":
-        #     orders, cancels = valbz_order3(message, history, tick)
-        #     for b in orders:
-        #         print("valbz order: ", b["dir"])
-        #         exchange.send_add_message(**b)
-        #     for c in cancels:
-        #         print("cancel orders: ", c)
-        #         exchange.send_cancel_message(c)
-
-        # bond_history_book = history.get("BOND")
-        # if bond_history_book:
-        #     bond_buy_msgs = bond_history_book[-1]["buy"]
-        #     bond_sell_msgs = bond_history_book[-1]["sell"]
-        #     buy_orders, sell_orders = BondStrategy.bondStrategy(
-        #         bond_buy_msgs, bond_sell_msgs)
-
-        #     for b in buy_orders:
-        #         exchange.send_add_message(**b)
-        #     for s in sell_orders:
-        #         exchange.send_add_message(**s)
+        for b in buy_orders:
+            exchange.send_add_message(**b)
+        for s in sell_orders:
+            exchange.send_add_message(**s)
 
 
 class ExchangeConnection:
@@ -207,6 +151,7 @@ class ExchangeConnection:
 
     def send_cancel_message(self, order_id: int):
         """Cancel an existing order"""
+        print({"type": "cancel", "order_id": order_id})
         self._write_message({"type": "cancel", "order_id": order_id})
 
     def _connect(self, add_socket_timeout):

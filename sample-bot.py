@@ -12,30 +12,13 @@ import socket
 import json
 from utils import Dir, PriceHistory, do_tick, get_order_id, init
 from pennying import PennyingStrategy
+from bond import BondStrategy
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # Replace "REPLACEME" with your team name!
 team_name = "shinerperch"
 
 # ~~~~~============== MAIN LOOP ==============~~~~~
-
-class BondStrategy:
-    def bondStrategy(buys, sells):
-        buy_orders = []
-        sell_orders = []
-        for i in range(len(sells)):
-            if sells[i][0] < 1000:
-                buy_orders.append(
-                    dict(order_id=get_order_id(), symbol="BOND", dir=Dir.BUY, price=sells[i][0], size=sells[i][1])
-                )
-
-        for i in range(len(buys)):
-            if buys[i][0] > 1000:
-                sell_orders.append(
-                    dict(order_id=get_order_id(), symbol="BOND", dir=Dir.SELL, price=buys[i][0], size=buys[i][1]))
-        return buy_orders, sell_orders
-
-
 
 def main():
     args = parse_arguments()
