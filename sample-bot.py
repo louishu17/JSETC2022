@@ -10,7 +10,8 @@ from collections import deque
 import time
 import socket
 import json
-from utils import Dir, PriceHistory, get_order_id, init_order_id
+from utils import Dir, PriceHistory, do_tick, get_order_id, init
+from pennying import PennyingStrategy
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # Replace "REPLACEME" with your team name!
@@ -62,7 +63,9 @@ def main():
     vale_last_print_time = time.time()
 
     history = PriceHistory()
-    init_order_id()
+    init()
+    cancel_timer_dict = {}
+    pennying_pairs = {}
 
     # Here is the main loop of the program. It will continue to read and
     # process messages in a loop until a "close" message is received. You
@@ -76,9 +79,8 @@ def main():
     # message. Sending a message in response to every exchange message will
     # cause a feedback loop where your bot's messages will quickly be
     # rate-limited and ignored. Please, don't do that!
-    tick = 0
     while True:
-        tick += 1
+        tick = do_tick()
         message = exchange.read_message()
         # Some of the message types below happen infrequently and contain
         # important information to help you understand what your bot is doing,
@@ -95,6 +97,14 @@ def main():
             print(message)
         elif message["type"] == "fill":
             print(message)
+            # If pennying position is filled, prevent other position from canceling
+            id1 = message["order_id"]
+            if id1 in pennying_pairs:
+                id2 = pennying_pairs[id1]
+                if id1 in cancel_timer_dict:
+                    cancel_timer_dict.pop(id1)
+                if id2 in cancel_timer_dict:
+                    cancel_timer_dict.pop(id2)
         elif message["type"] == "ack":
             print(message)
         elif message["type"] == "book":
@@ -110,27 +120,53 @@ def main():
             #     other = "VALE" if m == "VALBZ" else "VALBZ"
             #     bid, ask = best_price("buy"), best_price("sell")
 
-        bond_history_book = history.get("BOND")
-        if bond_history_book:
-            bond_buy_msgs = bond_history_book[-1]["buy"]
-            bond_sell_msgs = bond_history_book[-1]["sell"]
-            buy_orders, sell_orders = BondStrategy.bondStrategy(
-                bond_buy_msgs, bond_sell_msgs)
+        # bond_history_book = history.get("BOND")
+        # if bond_history_book:
+        #     bond_buy_msgs = bond_history_book[-1]["buy"]
+        #     bond_sell_msgs = bond_history_book[-1]["sell"]
+        #     buy_orders, sell_orders = BondStrategy.bondStrategy(
+        #         bond_buy_msgs, bond_sell_msgs)
 
-            for b in buy_orders:
-                exchange.send_add_message(**b)
-            for s in sell_orders:
-                exchange.send_add_message(**s)
+        #     for b in buy_orders:
+        #         exchange.send_add_message(**b)
+        #     for s in sell_orders:
+        #         exchange.send_add_message(**s)
+
+        # pennying strat
+        for sym in ["XLF"]:
+            if tick % 20 != 0:
+                break
+            history_book = history.get_last(sym)
+            if history_book:
+                buy_orders, sell_orders, cancel_timers = PennyingStrategy.pennying_strategy(
+                    sym, history_book["buy"], history_book["sell"]
+                )
+                if cancel_timers:
+                    cancel_timer_dict.update(cancel_timers)
+                    id1, id2 = cancel_timers.keys()
+                    pennying_pairs[id1] = id2
+                    pennying_pairs[id2] = id1
+
+                for b in buy_orders:
+                    exchange.send_add_message(**b)
+                for s in sell_orders:
+                    exchange.send_add_message(**s)
+
+                for order_id, cancel_timer in dict(cancel_timer_dict).items():
+                    c = cancel_timer.do_tick()
+                    if c:
+                        cancel_timer_dict.pop(order_id)
+                        exchange.send_cancel_message(**c)
 
         # valbz orders
         if message["type"] == "book":
             orders, cancels = valbz_order(message, history, tick)
             for b in orders:
                 print("valbz order: ", b["dir"])
-                exchange.send_add_message(**b)
+                # exchange.send_add_message(**b)
             for c in cancels:
                 print("cancel orders: ", c)
-                exchange.send_cancel_message(c)
+                # exchange.send_cancel_message(c)
 
 
 class ExchangeConnection:
@@ -179,6 +215,7 @@ class ExchangeConnection:
 
     def send_cancel_message(self, order_id: int):
         """Cancel an existing order"""
+        print({"type": "cancel", "order_id": order_id})
         self._write_message({"type": "cancel", "order_id": order_id})
 
     def _connect(self, add_socket_timeout):
