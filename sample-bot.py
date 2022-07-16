@@ -13,7 +13,7 @@ import json
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # Replace "REPLACEME" with your team name!
-team_name = "Shiner Perch"
+team_name = "shinerperch"
 
 # ~~~~~============== MAIN LOOP ==============~~~~~
 
