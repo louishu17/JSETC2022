@@ -34,15 +34,17 @@ def momentum_order(message, history, tick):
         if hist_prices and len(hist_prices) > 50:
             ma = sum(hist_prices[-MA_LENGTH:]) / 1.0 / MA_LENGTH
             if current_price < ma and up:
-                orders.append(
-                    dict(order_id=get_order_id(), symbol=sym, dir=Dir.SELL, price=message["buy"][0][0], size=20)
-                )
-                up = False
+                for i in range(5):
+                    orders.append(
+                        dict(order_id=get_order_id(), symbol=sym, dir=Dir.SELL, price=message["buy"][0][0], size=4)
+                    )
+                    up = False
             elif current_price > ma and not up:
-                orders.append(
-                    dict(order_id=get_order_id(), symbol=sym, dir=Dir.BUY, price=message["sell"][0][0], size=20)
-                )
-                up = True
+                for i in range(5):
+                    orders.append(
+                        dict(order_id=get_order_id(), symbol=sym, dir=Dir.BUY, price=message["sell"][0][0], size=4)
+                    )
+                    up = True
     # add our orders to be closed in the future
     cancel_future[tick + CANCEL_IN] = []
     for order in orders:
