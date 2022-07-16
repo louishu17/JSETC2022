@@ -22,7 +22,7 @@ def invert(order):
 def momentum_order(message, history, tick):
     orders = []
     cancels = []
-    sym = "VALBZ"
+    sym = "XLF"
     if message["symbol"] == sym:
         if len(message["buy"]) == 0 or len(message["sell"]) == 0:
             return orders, cancels
@@ -30,13 +30,15 @@ def momentum_order(message, history, tick):
         hist_prices = history.last_n_prices(sym, 100)
         if hist_prices and len(hist_prices) > 50:
             ma = sum(hist_prices[-MA_LENGTH:]) / 1.0 / MA_LENGTH
+            print(ma)
+            print(current_price)
             if current_price < ma:
                 orders.append(
-                    dict(order_id=get_order_id(), symbol=sym, dir=Dir.SELL, price=int(current_price), size=1)
+                    dict(order_id=get_order_id(), symbol=sym, dir=Dir.SELL, price=message["buy"][0][0], size=1)
                 )
             else:
                 orders.append(
-                    dict(order_id=get_order_id(), symbol=sym, dir=Dir.BUY, price=int(current_price), size=1)
+                    dict(order_id=get_order_id(), symbol=sym, dir=Dir.BUY, price=message["sell"][0][0], size=1)
                 )
     # add our orders to be closed in the future
     cancel_future[tick + CANCEL_IN] = []
