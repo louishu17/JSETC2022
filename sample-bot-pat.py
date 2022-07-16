@@ -11,7 +11,7 @@ import time
 import socket
 import json
 from momentum import momentum_order
-from utils import Dir, PriceHistory, get_order_id
+from utils import Dir, PriceHistory, get_order_id, init
 from valbz3 import valbz_order3
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
@@ -65,6 +65,7 @@ def main():
     vale_last_print_time = time.time()
 
     history = PriceHistory()
+    init()
 
     # Here is the main loop of the program. It will continue to read and
     # process messages in a loop until a "close" message is received. You
