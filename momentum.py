@@ -2,7 +2,7 @@ from enum import Enum
 import random
 
 MA_LENGTH = 15
-CANCEL_IN = 3
+CANCEL_IN = 4
 
 class Dir(str, Enum):
     BUY = "BUY"
