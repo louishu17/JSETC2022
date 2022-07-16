@@ -4,6 +4,7 @@
 # 2) Change permissions: chmod +x bot.py
 # 3) Run in loop: while true; do ./bot.py --test prod-like; sleep 1; done
 
+from valbz import valbz_order
 import argparse
 from collections import deque
 import time
@@ -121,9 +122,16 @@ def main():
             for s in sell_orders:
                 exchange.send_add_message(**s)
 
+        # valbz orders
+        if message["type"] == "book":
+            orders, cancels = valbz_order(message, history, tick)
+            for b in orders:
+                print("valbz order: ", b["dir"])
+                exchange.send_add_message(**b)
+            for c in cancels:
+                print("cancel orders: ", c)
+                exchange.send_cancel_message(c)
 
-def write_to_exchange(exchange, obj):
-    json.dump(obj, exchange)
 
 class ExchangeConnection:
     def __init__(self, args):
