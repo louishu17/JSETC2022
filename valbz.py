@@ -55,7 +55,7 @@ def vale_order(history):
             amt = min(vale_bid_price[1], valbz_ask_price[1])
             orders.append(
                 dict(order_id=get_order_id(), symbol="VALBZ",
-                     dir=Dir.BUY, price=vale_ask_price[0] + 1, size=amt)
+                     dir=Dir.BUY, price=valbz_ask_price[0] + 1, size=amt)
             )
             converts.append(
                 dict(order_id=get_order_id(), symbol="VALBZ",
@@ -63,7 +63,7 @@ def vale_order(history):
             )
             orders.append(
                 dict(order_id=get_order_id(), symbol="VALE",
-                     dir=Dir.SELL, price=valbz_bid_price[0] - 1, size=amt)
+                     dir=Dir.SELL, price=vale_bid_price[0] - 1, size=amt)
             )
 
     return orders, converts
