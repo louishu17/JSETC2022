@@ -14,7 +14,6 @@ def valbz_strategy(valbz_trade_info, vale_trade_info):
         avg_strat = moving_10_day_average(
             last_10_valbz_prices, last_10_vale_prices)
         if avg_strat:
-            print(avg_strat)
             res = []
             res.append({"order_id": get_order_id(),
                        "symbol": "VALE", "dir": Dir.BUY, "price": avg_strat[0] + 1, "size": 10})
