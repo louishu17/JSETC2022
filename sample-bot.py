@@ -110,26 +110,25 @@ def main():
             #     other = "VALE" if m == "VALBZ" else "VALBZ"
             #     bid, ask = best_price("buy"), best_price("sell")
 
-        bond_history_book = history.get("BOND")
-        if bond_history_book:
-            bond_buy_msgs = bond_history_book[-1]["buy"]
-            bond_sell_msgs = bond_history_book[-1]["sell"]
-            buy_orders, sell_orders = BondStrategy.bondStrategy(
-                bond_buy_msgs, bond_sell_msgs)
+        # bond_history_book = history.get("BOND")
+        # if bond_history_book:
+        #     bond_buy_msgs = bond_history_book[-1]["buy"]
+        #     bond_sell_msgs = bond_history_book[-1]["sell"]
+        #     buy_orders, sell_orders = BondStrategy.bondStrategy(
+        #         bond_buy_msgs, bond_sell_msgs)
 
-#            for b in buy_orders:
-#                exchange.send_add_message(**b)
-#            for s in sell_orders:
-#                exchange.send_add_message(**s)
+        #     for b in buy_orders:
+        #         exchange.send_add_message(**b)
+        #     for s in sell_orders:
+        #         exchange.send_add_message(**s)
 
         for sym in ["GS", "MS", "WFC", "XLF"]:
             if tick % 20 != 0:
                 break
-            history_book = history.get(sym)
-            if history_book is not None:
-                print(history_book)
-                buy_orders, sell_orders, cancel_triggers = PennyingStrategy.pennying_strategy(
-                    sym, history_book[-1]["buy"], history_book[-1]["sell"]
+            history_book = history.get_last(sym)
+            if history_book:
+                buy_orders, sell_orders, position_closer = PennyingStrategy.pennying_strategy(
+                    sym, history_book["buy"], history_book["sell"]
                 )
 
                 for b in buy_orders:
@@ -137,10 +136,9 @@ def main():
                 for s in sell_orders:
                     exchange.send_add_message(**s)
 
-                for ct in cancel_triggers:
-                    c = ct.tick(sym, history)
-                    if c:
-                        exchange.send_cancel_message(**c)
+                cancel_orders = position_closer.tick(sym, history)
+                for c in cancel_orders:
+                    exchange.send_cancel_message(**c)
 
 
 class ExchangeConnection:
