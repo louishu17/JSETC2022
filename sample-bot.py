@@ -17,14 +17,65 @@ team_name = "shinerperch"
 
 # ~~~~~============== MAIN LOOP ==============~~~~~
 
-# You should put your code here! We provide some starter code as an example,
-# but feel free to change/remove/edit/update any of it as you'd like. If you
-# have any questions about the starter code, or what to do next, please ask us!
-#
-# To help you get started, the sample code below tries to buy BOND for a low
-# price, and it prints the current prices for VALE every second. The sample
-# code is intended to be a working example, but it needs some improvement
-# before it will start making good trades!
+
+class PriceHistory:
+    """
+    run history.update(msg) every book msg
+    history.get(sym) -> [
+        {
+            "buy": list of buy orders as [price, qty],
+            "sell": list of sell orders as [price, qty],
+            "price": avg of max buy and min sell
+        }, ...
+    ]
+    """
+
+    def __init__(self):
+        self.history = {}
+
+    def update(self, msg):
+        if msg["type"] != "book":
+            print("WARN: PriceHistory update not a book msg")
+
+        if msg["symbol"] not in self.history:
+            self.history[msg["symbol"]] = []
+        self.history[msg["symbol"]].append({
+            "buy": msg["buy"],
+            "sell": msg["sell"],
+            "price": (msg["buy"][0][0] + msg["sell"][0][0]) / 2,
+        })
+
+    def get(self, sym):
+        return self.history[sym]
+
+    def last_price(self, sym):
+        return self.history[sym][-1]["price"]
+
+    def last_ba(self, sym):
+        """# returns tuple: ([bid, quantity], [ask, quantity])
+        return self.history[sym][-1]["buy"][0],
+
+
+self.history[sym][-1]["sell"][0]
+"""
+
+
+class BondStrategy:
+    def bondStrategy(buys, sells):
+        buy_orders = []
+        sell_orders = []
+        for i in range(len(sells)):
+            if sells[i][0] < 1000:
+                buy_orders.append(
+                    order_id=i, symbol="BOND", dir=Dir.BUY, price=sells[i][0], size=sells[i][1]
+                )
+
+        for i in range(len(buys)):
+            if buys[i][0] > 1000:
+                sell_orders.append(
+                    order_id=i, symbol="BOND", dir=Dir.SELL, price=buys[i][0], size=buys[i][1])
+
+        return buy_orders, sell_orders
 
 
 def main():
@@ -42,13 +93,17 @@ def main():
     # Send an order for BOND at a good price, but it is low enough that it is
     # unlikely it will be traded against. Maybe there is a better price to
     # pick? Also, you will need to send more orders over time.
-    exchange.send_add_message(order_id=1, symbol="BOND", dir=Dir.BUY, price=990, size=1)
+    exchange.send_add_message(
+        order_id=1, symbol="BOND", dir=Dir.BUY, price=990, size=1
+    )
 
     # Set up some variables to track the bid and ask price of a symbol. Right
     # now this doesn't track much information, but it's enough to get a sense
     # of the VALE market.
     vale_bid_price, vale_ask_price = None, None
     vale_last_print_time = time.time()
+
+    history = PriceHistory()
 
     # Here is the main loop of the program. It will continue to read and
     # process messages in a loop until a "close" message is received. You
@@ -62,9 +117,11 @@ def main():
     # message. Sending a message in response to every exchange message will
     # cause a feedback loop where your bot's messages will quickly be
     # rate-limited and ignored. Please, don't do that!
+    tick = 0
     while True:
+        tick += 1
         message = exchange.read_message()
-
+        history.update_book(message)
         # Some of the message types below happen infrequently and contain
         # important information to help you understand what your bot is doing,
         # so they are printed in full. We recommend not always printing every
@@ -81,32 +138,47 @@ def main():
         elif message["type"] == "fill":
             print(message)
         elif message["type"] == "book":
-            if message["symbol"] == "VALE":
 
-                def best_price(side):
-                    if message[side]:
-                        return message[side][0][0]
+            # Update current market info with book
+            history.update(message)
 
-                vale_bid_price = best_price("buy")
-                vale_ask_price = best_price("sell")
+            # if message["symbol"] == "VALE":
 
-                now = time.time()
+            #     def best_price(side):
+            #         if message[side]:
+            #             return message[side][0][0]
 
-                if now > vale_last_print_time + 1:
-                    vale_last_print_time = now
-                    print(
-                        {
-                            "vale_bid_price": vale_bid_price,
-                            "vale_ask_price": vale_ask_price,
-                        }
-                    )
+            #     vale_bid_price = best_price("buy")
+            #     vale_ask_price = best_price("sell")
 
+            #     now = time.time()
 
-# ~~~~~============== PROVIDED CODE ==============~~~~~
+            #     if now > vale_last_print_time + 1:
+            #         vale_last_print_time = now
+            #         print(
+            #             {
+            #                 "vale_bid_price": vale_bid_price,
+            #                 "vale_ask_price": vale_ask_price,
+            #             }
+            #         )
 
-# You probably don't need to edit anything below this line, but feel free to
-# ask if you have any questions about what it is doing or how it works. If you
-# do need to change anything below this line, please feel free to
+            if message["symbol"] in ["VALE", "VALBZ"]:
+                sym = message["symbol"]
+                last_vale = if sym == "VALE" message["buy"]
+                other = "VALE" if m == "VALBZ" else "VALBZ"
+                bid, ask = best_price("buy"), best_price("sell")
+
+        bond_history_book = history.get("BOND")
+        bond_buy_msgs = bond_history_book["buy"]
+        bond_sell_msgs = bond_history_book["sell"]
+        buy_orders, sell_orders = BondStrategy.bondStrategy(
+            bond_buy_msgs, bond_sell_msgs)
+
+        for b in buy_orders:
+            exchange.send_add_message(b)
+        for s in sell_orders:
+            exchange.send_add_message(s)
+
 
 
 class Dir(str, Enum):
@@ -119,7 +191,8 @@ class ExchangeConnection:
         self.message_timestamps = deque(maxlen=500)
         self.exchange_hostname = args.exchange_hostname
         self.port = args.port
-        self.exchange_socket = self._connect(add_socket_timeout=args.add_socket_timeout)
+        self.exchange_socket = self._connect(
+            add_socket_timeout=args.add_socket_timeout)
 
         self._write_message({"type": "hello", "team": team_name.upper()})
 
