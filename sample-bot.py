@@ -78,6 +78,7 @@ class BondStrategy:
         return buy_orders, sell_orders
 
 
+
 def main():
     args = parse_arguments()
 
@@ -166,7 +167,7 @@ def main():
             #     pass
             #     """"""
             #     sym = message["symbol"]
-            #     last_vale = history.last_ba(sym) if sym == "VALE" message["buy"]
+            #     last_vale = history.last_ba(sym) if sym == "VALBZ" message["buy"]
             #     other = "VALE" if m == "VALBZ" else "VALBZ"
             #     bid, ask = best_price("buy"), best_price("sell")
 
