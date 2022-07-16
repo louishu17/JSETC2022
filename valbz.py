@@ -8,7 +8,7 @@ def get_order_id():
 
 net = 0
 
-def valbz_order(message, history, tick):
+def valbz_order(message, history):
     orders = []
     if message["symbol"] == "VALE":
         vale_bid_price = message["buy"][0]  # these are tuples
@@ -32,5 +32,5 @@ def valbz_order(message, history, tick):
                         dict(order_id=get_order_id(), symbol="VALE", dir=Dir.BUY, price=price, size=vale_ask_price[1])
                     )
                     # buys.append(orders[-1])
-        
+
     return orders
