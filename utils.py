@@ -2,15 +2,27 @@ from collections import deque
 from enum import Enum
 
 
-def init_order_id():
-    global order_id
+def init():
+    global tick, order_id
+    tick = 0
     order_id = 0
+
+
+def do_tick():
+    global tick
+    tick += 1
+    return tick
 
 
 def get_order_id():
     global order_id
     order_id += 1
     return order_id
+
+
+def get_tick():
+    global tick
+    return tick
 
 
 class Dir(str, Enum):
@@ -68,6 +80,17 @@ class PriceHistory:
 
 self.history[sym][-1]["sell"][0]
 """
+
+class CancelTimer:
+    def __init__(self, order_id: int):
+        self.order_id = order_id
+        self.tick = get_tick()
+
+    def do_tick(self):
+        if get_tick() >= self.tick + 5:
+            return dict(order_id=self.order_id)
+        return None
+
 
 class CancelTrigger:
     def __init__(self, order_id: int, trigger_price: int, action: Dir) -> None:

@@ -9,7 +9,7 @@ from collections import deque
 import time
 import socket
 import json
-from utils import CancelTrigger, Dir, PriceHistory, get_order_id, init_order_id
+from utils import Dir, PriceHistory, do_tick, get_order_id, init
 from pennying import PennyingStrategy
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
@@ -62,7 +62,8 @@ def main():
     vale_last_print_time = time.time()
 
     history = PriceHistory()
-    init_order_id()
+    init()
+    cancel_timer_list = []
 
     # Here is the main loop of the program. It will continue to read and
     # process messages in a loop until a "close" message is received. You
@@ -76,9 +77,8 @@ def main():
     # message. Sending a message in response to every exchange message will
     # cause a feedback loop where your bot's messages will quickly be
     # rate-limited and ignored. Please, don't do that!
-    tick = 0
     while True:
-        tick += 1
+        tick = do_tick()
         message = exchange.read_message()
         # Some of the message types below happen infrequently and contain
         # important information to help you understand what your bot is doing,
@@ -127,18 +127,20 @@ def main():
                 break
             history_book = history.get_last(sym)
             if history_book:
-                buy_orders, sell_orders, position_closer = PennyingStrategy.pennying_strategy(
+                buy_orders, sell_orders, cancel_timer = PennyingStrategy.pennying_strategy(
                     sym, history_book["buy"], history_book["sell"]
                 )
+                cancel_timer_list.append(cancel_timer)
 
                 for b in buy_orders:
                     exchange.send_add_message(**b)
                 for s in sell_orders:
                     exchange.send_add_message(**s)
 
-                if position_closer:
-                    cancel_orders = position_closer.tick(sym, history)
-                    for c in cancel_orders:
+                for i, cancel_timer in enumerate(cancel_timer_list):
+                    c = cancel_timer.do_tick(sym, history)
+                    if c:
+                        cancel_timer_list.pop(i)
                         exchange.send_cancel_message(**c)
 
 

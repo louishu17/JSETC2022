@@ -1,4 +1,4 @@
-from utils import CancelTrigger, Dir, PositionCloser, get_order_id
+from utils import CancelTimer, CancelTrigger, Dir, PositionCloser, get_order_id
 
 class PennyingStrategy:
     @staticmethod
@@ -13,7 +13,7 @@ class PennyingStrategy:
 
         buy_orders = []
         sell_orders = []
-        position_closer = None
+        cancel_timer = None
         if price is None:
             # Naive price estimate
             price = (buys[0][0] + sells[0][0]) / 2
@@ -34,18 +34,21 @@ class PennyingStrategy:
                 price=min_sell - 1,
                 size=sells[0][1],
                 ))
-            cancel_trigger_buy = CancelTrigger(
+            # cancel_trigger_buy = CancelTrigger(
+            #     order_id=order_id,
+            #     trigger_price=max_buy + 2,
+            #     action=Dir.BUY
+            # )
+            # cancel_trigger_sell = CancelTrigger(
+            #     order_id=order_id,
+            #     trigger_price=min_sell - 2,
+            #     action=Dir.SELL
+            # )
+            # position_closer = PositionCloser(
+            #     cancel_trigger_buy,
+            #     cancel_trigger_sell
+            # )
+            cancel_timer = CancelTimer(
                 order_id=order_id,
-                trigger_price=max_buy + 2,
-                action=Dir.BUY
             )
-            cancel_trigger_sell = CancelTrigger(
-                order_id=order_id,
-                trigger_price=min_sell - 2,
-                action=Dir.SELL
-            )
-            position_closer = PositionCloser(
-                cancel_trigger_buy,
-                cancel_trigger_sell
-            )
-        return buy_orders, sell_orders, position_closer
+        return buy_orders, sell_orders, cancel_timer
