@@ -23,6 +23,7 @@ def momentum_order(message, history, tick):
     orders = []
     cancels = []
     if message["symbol"] == "XLF":
+        sym = "XLF"
         current_price = (message["buy"][0][0] + message["sell"][0][0]) / 2.0
         hist_prices = history.last_n_prices(sym, 100)
         if hist_prices and len(hist_prices) > 50:
