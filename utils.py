@@ -59,5 +59,7 @@ class PriceHistory:
     def last_ba(self, sym):
         # returns tuple: ([bid, quantity], [ask, quantity])
         if sym in self.history and len(self.history) > 0:
-            return self.history[sym][-1]["buy"][0], self.history[sym][-1]["sell"][0]
+            x = self.history[sym][-1]
+            if len(x["buy"]) > 0 and len(x["sell"]) > 0:
+                return self.history[sym][-1]["buy"][0], self.history[sym][-1]["sell"][0]
         return None
