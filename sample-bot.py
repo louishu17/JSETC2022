@@ -130,7 +130,8 @@ def main():
                 buy_orders, sell_orders, cancel_timer = PennyingStrategy.pennying_strategy(
                     sym, history_book["buy"], history_book["sell"]
                 )
-                cancel_timer_list.append(cancel_timer)
+                if cancel_timer:
+                    cancel_timer_list.append(cancel_timer)
 
                 for b in buy_orders:
                     exchange.send_add_message(**b)
@@ -190,6 +191,7 @@ class ExchangeConnection:
 
     def send_cancel_message(self, order_id: int):
         """Cancel an existing order"""
+        print({"type": "cancel", "order_id": order_id})
         self._write_message({"type": "cancel", "order_id": order_id})
 
     def _connect(self, add_socket_timeout):

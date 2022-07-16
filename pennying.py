@@ -1,4 +1,4 @@
-from utils import CancelTimer, CancelTrigger, Dir, PositionCloser, get_order_id
+from utils import CancelTimer, Dir, get_order_id
 
 class PennyingStrategy:
     @staticmethod
