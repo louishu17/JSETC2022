@@ -50,6 +50,7 @@ def vale_order(history):
                 dict(order_id=get_order_id(), symbol="VALBZ",
                      dir=Dir.SELL, price=valbz_bid_price[0] - 1, size=amt)
             )
+        """
         elif vale_bid_price[0] - valbz_ask_price[0] >= 2:
             # sell vale, buy valbz
             amt = min(vale_bid_price[1], valbz_ask_price[1])
@@ -65,6 +66,7 @@ def vale_order(history):
                 dict(order_id=get_order_id(), symbol="VALE",
                      dir=Dir.SELL, price=vale_bid_price[0] - 1, size=amt)
             )
+            """
 
     return orders, converts
 
