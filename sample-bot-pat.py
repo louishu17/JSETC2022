@@ -128,6 +128,7 @@ def main():
         # valbz orders
 
         if message["type"] == "book":
+            """
             orders, cancels = valbz_order(message, history, tick)
             for b in orders:
                 print("valbz order: ", b["dir"])
@@ -135,6 +136,7 @@ def main():
             for c in cancels:
                 print("cancel orders: ", c)
                 exchange.send_cancel_message(c)
+            """
             orders, transfers = vale_order(history)
             for b in orders:
                 print("vale buy order: ", b["dir"])
