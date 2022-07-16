@@ -1,8 +1,10 @@
 from enum import Enum
 import random
 
-MA_LENGTH = 15
-CANCEL_IN = 4
+MA_LENGTH = 30
+CANCEL_IN = 10
+
+up = True
 
 class Dir(str, Enum):
     BUY = "BUY"
@@ -23,6 +25,7 @@ def momentum_order(message, history, tick):
     orders = []
     cancels = []
     sym = "VALBZ"
+    global up
     if message["symbol"] == sym:
         if len(message["buy"]) == 0 or len(message["sell"]) == 0:
             return orders, cancels
@@ -30,16 +33,16 @@ def momentum_order(message, history, tick):
         hist_prices = history.last_n_prices(sym, 100)
         if hist_prices and len(hist_prices) > 50:
             ma = sum(hist_prices[-MA_LENGTH:]) / 1.0 / MA_LENGTH
-            print(ma)
-            print(current_price)
-            if current_price < ma:
+            if current_price < ma and up:
                 orders.append(
-                    dict(order_id=get_order_id(), symbol=sym, dir=Dir.SELL, price=message["sell"][0][0], size=10)
+                    dict(order_id=get_order_id(), symbol=sym, dir=Dir.SELL, price=message["buy"][0][0], size=20)
                 )
-            else:
+                up = False
+            elif current_price > ma and not up:
                 orders.append(
-                    dict(order_id=get_order_id(), symbol=sym, dir=Dir.BUY, price=message["buy"][0][0], size=10)
+                    dict(order_id=get_order_id(), symbol=sym, dir=Dir.BUY, price=message["sell"][0][0], size=20)
                 )
+                up = True
     # add our orders to be closed in the future
     cancel_future[tick + CANCEL_IN] = []
     for order in orders:
