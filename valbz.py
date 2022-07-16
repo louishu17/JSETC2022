@@ -18,6 +18,7 @@ net = 0
 def invert(order):
     order = order.copy()
     order["dir"] = Dir.BUY if order["dir"] == Dir.SELL else Dir.SELL
+    order["price"] = int(order["price"] // 10) if order["dir"] == Dir.SELL else int(order["price"] * 10)
     return order
 
 def valbz_order(message, history, tick):
