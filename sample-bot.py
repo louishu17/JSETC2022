@@ -10,6 +10,7 @@ import time
 import socket
 import json
 from utils import Dir, PriceHistory, get_order_id, init_order_id
+from pennying import PennyingStrategy
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # Replace "REPLACEME" with your team name!
@@ -120,6 +121,18 @@ def main():
                 exchange.send_add_message(**b)
             for s in sell_orders:
                 exchange.send_add_message(**s)
+
+        for sym in ["GS", "MS", "WFC", "XLF"]:
+            history_book = history.get(sym)
+            if history_book:
+                buy_orders, sell_orders = PennyingStrategy.pennying_strategy(
+                    history_book[-1]["buy"], history_book[-1]["sell"]
+                )
+
+                for b in buy_orders:
+                    exchange.send_add_message(**b)
+                for s in sell_orders:
+                    exchange.send_add_message(**s)
 
 
 class ExchangeConnection:

@@ -63,3 +63,13 @@ class PriceHistory:
 
 self.history[sym][-1]["sell"][0]
 """
+
+class CancelTrigger:
+    def __init__(self, order_id: int, trigger_price: int, action: Dir) -> None:
+        self.order_id = order_id
+        self.trigger_price = trigger_price
+        self.action = action
+
+    def tick(self, fair_price: int) -> bool:
+        if self.action is Dir.BUY and fair_price < self.trigger_price:
+            pass
