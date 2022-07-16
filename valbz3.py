@@ -28,7 +28,7 @@ def invert(order):
     return order
 
 
-def valbz_order(message, history, tick):
+def valbz_order3(message, history, tick):
     orders = []
     cancels = []
     if message["symbol"] == "VALE":

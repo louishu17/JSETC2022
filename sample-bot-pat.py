@@ -11,12 +11,14 @@ import time
 import socket
 import json
 from utils import Dir, PriceHistory, get_order_id, init_order_id
+from valbz3 import valbz_order3
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # Replace "REPLACEME" with your team name!
 team_name = "shinerperch"
 
 # ~~~~~============== MAIN LOOP ==============~~~~~
+
 
 class BondStrategy:
     def bondStrategy(buys, sells):
@@ -25,7 +27,8 @@ class BondStrategy:
         for i in range(len(sells)):
             if sells[i][0] < 1000:
                 buy_orders.append(
-                    dict(order_id=get_order_id(), symbol="BOND", dir=Dir.BUY, price=sells[i][0], size=sells[i][1])
+                    dict(order_id=get_order_id(), symbol="BOND",
+                         dir=Dir.BUY, price=sells[i][0], size=sells[i][1])
                 )
 
         for i in range(len(buys)):
@@ -33,7 +36,6 @@ class BondStrategy:
                 sell_orders.append(
                     dict(order_id=get_order_id(), symbol="BOND", dir=Dir.SELL, price=buys[i][0], size=buys[i][1]))
         return buy_orders, sell_orders
-
 
 
 def main():
@@ -124,7 +126,7 @@ def main():
 
         # valbz orders
         if message["type"] == "book":
-            orders, cancels = valbz_order(message, history, tick)
+            orders, cancels = valbz_order3(message, history, tick)
             for b in orders:
                 print("valb order: ", b["dir"])
                 exchange.send_add_message(**b)
