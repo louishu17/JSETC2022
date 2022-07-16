@@ -9,7 +9,7 @@ from collections import deque
 import time
 import socket
 import json
-from utils import Dir, PriceHistory, get_order_id, init_order_id
+from utils import CancelTrigger, Dir, PriceHistory, get_order_id, init_order_id
 from pennying import PennyingStrategy
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
@@ -123,16 +123,23 @@ def main():
                 exchange.send_add_message(**s)
 
         for sym in ["GS", "MS", "WFC", "XLF"]:
+            if tick % 100 != 0:
+                break
             history_book = history.get(sym)
             if history_book:
-                buy_orders, sell_orders = PennyingStrategy.pennying_strategy(
-                    history_book[-1]["buy"], history_book[-1]["sell"]
+                buy_orders, sell_orders, cancel_triggers = PennyingStrategy.pennying_strategy(
+                    sym, history_book[-1]["buy"], history_book[-1]["sell"]
                 )
 
                 for b in buy_orders:
                     exchange.send_add_message(**b)
                 for s in sell_orders:
                     exchange.send_add_message(**s)
+
+                for ct in cancel_triggers:
+                    c = ct.tick(sym, history)
+                    if c:
+                        exchange.send_cancel_message(**c)
 
 
 class ExchangeConnection:
