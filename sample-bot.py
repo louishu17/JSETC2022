@@ -38,7 +38,7 @@ class PriceHistory:
             print("WARN: PriceHistory update not a book msg")
 
         if msg["symbol"] not in self.history:
-            self.history[msg["symbol"]] = []
+            self.history[msg["symbol"]] = deque(maxlen=100)
         self.history[msg["symbol"]].append({
             "buy": msg["buy"],
             "sell": msg["sell"],
@@ -162,11 +162,13 @@ def main():
             #             }
             #         )
 
-            if message["symbol"] in ["VALE", "VALBZ"]:
-                sym = message["symbol"]
-                last_vale = if sym == "VALE" message["buy"]
-                other = "VALE" if m == "VALBZ" else "VALBZ"
-                bid, ask = best_price("buy"), best_price("sell")
+            # if message["symbol"] in ["VALE", "VALBZ"]:
+            #     pass
+            #     """"""
+            #     sym = message["symbol"]
+            #     last_vale = sym == "VALE" message["buy"]
+            #     other = "VALE" if m == "VALBZ" else "VALBZ"
+            #     bid, ask = best_price("buy"), best_price("sell")
 
         bond_history_book = history.get("BOND")
         bond_buy_msgs = bond_history_book["buy"]
@@ -178,7 +180,6 @@ def main():
             exchange.send_add_message(b)
         for s in sell_orders:
             exchange.send_add_message(s)
-
 
 
 class Dir(str, Enum):
