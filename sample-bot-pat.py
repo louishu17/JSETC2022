@@ -137,9 +137,9 @@ def main():
 
         # xlf orders
         if message["type"] == "book":
-            orders, cancels = valbz_order(message, history, tick)
+            orders, cancels = momentum_order(message, history, tick)
             for b in orders:
-                print("valbz order: ", b["dir"])
+                print("momentum order: ", b["dir"])
                 exchange.send_add_message(**b)
             for c in cancels:
                 print("cancel orders: ", c)
