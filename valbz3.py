@@ -42,13 +42,13 @@ def valbz_order3(message, history, tick):
             valb_prices = [list(t) for t in zip(*valbz)]
             valbz_bid_prices = valb_prices[0]
             valbz_ask_prices = valb_prices[1]
-            print(mean(valbz_bid_prices))
-            print(mean(valbz_ask_prices))
-            fair_price=(mean(valbz_bid_prices) + mean(valbz_ask_prices)) / 2
+            valbz_bid_prices = list(map(lambda x: x[0], valbz_bid_prices))
+            valbz_ask_prices = list(map(lambda x: x[0], valbz_ask_prices))
+            fair_price = (mean(valbz_bid_prices) + mean(valbz_ask_prices)) / 2
             if fair_price > 0.01:
                 if vale_bid_price[0] / 1.0 / fair_price > 1.003:
                     # sell VALE
-                    price=vale_bid_price[0]
+                    price = vale_bid_price[0]
                     orders.append(
                         dict(order_id=get_order_id(), symbol="VALE",
                              dir=Dir.SELL, price=price, size=vale_bid_price[1])
@@ -56,17 +56,17 @@ def valbz_order3(message, history, tick):
 
                 elif vale_ask_price[0] / 1.0 / fair_price < 0.997:
                     # buy VALE
-                    price=vale_ask_price[0]
+                    price = vale_ask_price[0]
                     orders.append(
                         dict(order_id=get_order_id(), symbol="VALE",
                              dir=Dir.BUY, price=price, size=vale_ask_price[1])
                     )
     # add our orders to be closed in the future
-    close_future_orders[tick + CLOSE_IN]=[invert(o) for o in orders]
+    close_future_orders[tick + CLOSE_IN] = [invert(o) for o in orders]
     orders += close_future_orders[tick] if tick in close_future_orders else []
-    order_ids[tick + CANCEL_IN]=[]
+    order_ids[tick + CANCEL_IN] = []
     for order in orders:
         order_ids[tick + CANCEL_IN].append(order["order_id"])
     if tick in order_ids:
-        cancels=order_ids[tick]
+        cancels = order_ids[tick]
     return orders, cancels
