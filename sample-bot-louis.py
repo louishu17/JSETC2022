@@ -9,7 +9,7 @@ from collections import deque
 import time
 import socket
 import json
-from utils import Dir, PriceHistory, get_order_id, init_order_id
+from utils import Dir, PriceHistory, get_order_id, init
 from valbz2 import valbz_strategy
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
@@ -73,7 +73,7 @@ def main():
     vale_last_print_time = time.time()
 
     history = PriceHistory()
-    init_order_id()
+    init()
 
     # Here is the main loop of the program. It will continue to read and
     # process messages in a loop until a "close" message is received. You
