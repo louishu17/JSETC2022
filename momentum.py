@@ -1,7 +1,7 @@
 from enum import Enum
 import random
 
-MA_LENGTH = 40
+MA_LENGTH = 75
 CANCEL_IN = 10
 
 up = True
@@ -31,18 +31,18 @@ def momentum_order(message, history, tick):
             return orders, cancels
         current_price = (message["buy"][0][0] + message["sell"][0][0]) / 2.0
         hist_prices = history.last_n_prices(sym, 100)
-        if hist_prices and len(hist_prices) > 50:
+        if hist_prices and len(hist_prices) > 75:
             ma = sum(hist_prices[-MA_LENGTH:]) / 1.0 / MA_LENGTH
             if current_price < ma and up:
                 for i in range(5):
                     orders.append(
-                        dict(order_id=get_order_id(), symbol=sym, dir=Dir.SELL, price=message["buy"][0][0], size=4)
+                        dict(order_id=get_order_id(), symbol=sym, dir=Dir.SELL, price=message["buy"][0][0], size=10)
                     )
                     up = False
             elif current_price > ma and not up:
                 for i in range(5):
                     orders.append(
-                        dict(order_id=get_order_id(), symbol=sym, dir=Dir.BUY, price=message["sell"][0][0], size=4)
+                        dict(order_id=get_order_id(), symbol=sym, dir=Dir.BUY, price=message["sell"][0][0], size=10)
                     )
                     up = True
     # add our orders to be closed in the future
