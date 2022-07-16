@@ -10,6 +10,7 @@ from collections import deque
 import time
 import socket
 import json
+from momentum import momentum_order
 from utils import Dir, PriceHistory, get_order_id, init_order_id
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
@@ -126,7 +127,17 @@ def main():
         if message["type"] == "book":
             orders, cancels = valbz_order(message, history, tick)
             for b in orders:
-                print("valb order: ", b["dir"])
+                print("valbz order: ", b["dir"])
+                exchange.send_add_message(**b)
+            for c in cancels:
+                print("cancel orders: ", c)
+                exchange.send_cancel_message(c)
+
+        # xlf orders
+        if message["type"] == "book":
+            orders, cancels = valbz_order(message, history, tick)
+            for b in orders:
+                print("valbz order: ", b["dir"])
                 exchange.send_add_message(**b)
             for c in cancels:
                 print("cancel orders: ", c)

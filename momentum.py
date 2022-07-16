@@ -1,7 +1,7 @@
 from enum import Enum
 import random
 
-CLOSE_IN = 25
+MA_LENGTH = 20
 
 class Dir(str, Enum):
     BUY = "BUY"
@@ -10,7 +10,7 @@ class Dir(str, Enum):
 def get_order_id():
     return random.randint(1, 4294967290)
 
-close_future = {}
+cancel_future = {}
 
 def invert(order):
     order = order.copy()
@@ -22,15 +22,22 @@ def momentum_order(message, history, tick):
     orders = []
     cancels = []
     if message["symbol"] == "XLF":
-        hist_orders = history.last_n_ba(sym, 100)
-        if hist_orders and len(hist_orders) > 75:
-
+        current_price = (message["buy"][0][0] + message["sell"][0][0]) / 2.0
+        hist_prices = history.last_n_prices(sym, 100)
+        if hist_prices and len(hist_prices) > 50:
+            ma = sum(hist_prices[-MA_LENGTH:]) / 1.0 / MA_LENGTH
+            if current_price < ma:
+                orders.append(
+                    dict(order_id=get_order_id(), symbol="XLF", dir=Dir.SELL, price=current_price, size=1)
+                )
+            else:
+                orders.append(
+                    dict(order_id=get_order_id(), symbol="XLF", dir=Dir.BUY, price=current_price, size=1)
+                )
     # add our orders to be closed in the future
-    close_future_orders[tick + CLOSE_IN] = [invert(o) for o in orders]
-    orders += close_future_orders[tick] if tick in close_future_orders else []
-    order_ids[tick + CANCEL_IN] = []
+    cancel_future[tick + CANCEL_IN] = []
     for order in orders:
-        order_ids[tick + CANCEL_IN].append(order["order_id"])
-    if tick in order_ids:
-        cancels = order_ids[tick]
+        cancel_future[tick + CANCEL_IN].append(order["order_id"])
+    if tick in cancel_future:
+        cancels = cancel_future[tick]
     return orders, cancels
