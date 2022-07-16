@@ -25,9 +25,14 @@ def get_tick():
     return tick
 
 
+def mean(ls):
+    return sum(ls) // len(ls)
+
+
 class Dir(str, Enum):
     BUY = "BUY"
     SELL = "SELL"
+    CONVERT = "CONVERT"
 
 
 class PriceHistory:
@@ -74,12 +79,12 @@ class PriceHistory:
         return self.history[sym][-1]["price"]
 
     def last_ba(self, sym):
-        """# returns tuple: ([bid, quantity], [ask, quantity])
-        return self.history[sym][-1]["buy"][0],
-
-
-self.history[sym][-1]["sell"][0]
-"""
+        # returns tuple: ([bid, quantity], [ask, quantity])
+        if sym in self.history and len(self.history) > 0:
+            x = self.history[sym][-1]
+            if len(x["buy"]) > 0 and len(x["sell"]) > 0:
+                return self.history[sym][-1]["buy"][0], self.history[sym][-1]["sell"][0]
+        return None
 
 class CancelTimer:
     def __init__(self, order_id: int):
