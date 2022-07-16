@@ -1,4 +1,5 @@
 from enum import Enum
+from random import random
 
 class Dir(str, Enum):
     BUY = "BUY"
