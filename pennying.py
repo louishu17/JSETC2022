@@ -24,7 +24,7 @@ class PennyingStrategy:
                 symbol=sym,
                 dir=Dir.BUY,
                 price=max_buy + 1,
-                size=buys[0][1],
+                size=1,
                 ))
             sell_order_id = get_order_id()
             sell_orders.append(dict(
@@ -32,7 +32,7 @@ class PennyingStrategy:
                 symbol=sym,
                 dir=Dir.SELL,
                 price=min_sell - 1,
-                size=sells[0][1],
+                size=1,
                 ))
             cancel_timers[buy_order_id] = CancelTimer(
                 order_id=buy_order_id,
