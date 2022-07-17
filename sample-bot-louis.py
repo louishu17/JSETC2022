@@ -11,7 +11,6 @@ import socket
 import json
 from utils import Dir, PriceHistory, get_order_id, init
 from valbz2 import valbz_strategy
-from valbz3 import valbz_order3
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # Replace "REPLACEME" with your team name!
@@ -107,10 +106,29 @@ def main():
             print("The round has ended")
             break
         elif message["type"] == "trade":
-            if(message["symbol"] == "VALBZ" or message["symbol"] == "VALE"):
-                print(message)
-            # symbol_trade[message["symbol"]].append(
-            #     [message["price"], message["size"]])
+            print(message)
+            symbol_trade[message["symbol"]].append(
+                [message["price"], message["size"]])
+        elif message["type"] == "error":
+            print(message)
+        elif message["type"] == "reject":
+            print(message)
+        elif message["type"] == "fill":
+            print(message)
+        elif message["type"] == "ack":
+            print(message)
+        elif message["type"] == "book":
+
+            # Update current market info with book
+            history.update(message)
+
+            vale_trade_history = symbol_trade["VALE"]
+            valbz_trade_history = symbol_trade["VALBZ"]
+            v_strat = valbz_strategy(valbz_trade_history, vale_trade_history)
+            if v_strat:
+                exchange.send_add_message(**v_strat[0])
+                exchange.send_convert_message(**v_strat[1])
+                exchange.send_add_message(**v_strat[2])
 
             # if message["symbol"] in ["VALE", "VALBZ"]:
             #     pass
