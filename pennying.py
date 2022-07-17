@@ -3,13 +3,13 @@ from utils import CancelTimer, Dir, get_order_id
 class PennyingStrategy:
     @staticmethod
     def pennying_strategy(sym, buys, sells, price=None):
-        if not (buys and sells):
-            return None
+        if not buys or not sells:
+            return [], [], []
         max_buy = buys[0][0]
         min_sell = sells[0][0]
         if max_buy > min_sell:
             print("wtf")
-            return None
+            return [], [], []
 
         buy_orders = []
         sell_orders = []
