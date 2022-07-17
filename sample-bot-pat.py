@@ -133,7 +133,7 @@ def main():
             for c in cancels:
                 print("cancel orders: ", c)
                 exchange.send_cancel_message(c)
-            """
+            
             orders, transfers = vale_order(history)
             for b in orders:
                 print("vale buy order: ", b["dir"])
@@ -141,6 +141,7 @@ def main():
             for c in transfers:
                 print("vale transfer orders: ", c)
                 exchange.send_convert_message(**c)
+            """
 
         # xlf orders
         """
