@@ -3,7 +3,7 @@ from utils import CancelTimer, Dir, get_order_id
 class PennyingStrategy:
     @staticmethod
     def pennying_strategy(sym, buys, sells, price=None):
-        if not buys and not sells:
+        if not buys or not sells:
             return None
         max_buy = buys[0][0]
         min_sell = sells[0][0]
@@ -16,7 +16,7 @@ class PennyingStrategy:
         cancel_timers = {}
         if price is None:
             # Naive price estimate
-            price = (buys[0][0] + sells[0][0]) / 2
+            price = (max_buy + min_sell) / 2
         if max_buy + 1 < price and min_sell - 1 > price:
             buy_order_id = get_order_id()
             buy_orders.append(dict(
