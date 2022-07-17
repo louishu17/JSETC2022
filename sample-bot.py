@@ -108,7 +108,7 @@ def main():
             bond_buy_msgs = bond_history_book[-1]["buy"]
             bond_sell_msgs = bond_history_book[-1]["sell"]
             buy_orders, sell_orders = BondStrategy.bondStrategy(
-                bond_buy_msgs, bond_sell_msgs)
+                bond_buy_msgs, bond_sell_msgs, tick)
 
             for b in buy_orders:
                 exchange.send_add_message(**b)
