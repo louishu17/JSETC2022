@@ -11,7 +11,6 @@ import socket
 import json
 from utils import Dir, PriceHistory, get_order_id, init
 from valbz2 import valbz_strategy
-from valbz3 import valbz_order3
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
 # Replace "REPLACEME" with your team name!
@@ -108,8 +107,8 @@ def main():
             break
         elif message["type"] == "trade":
             print(message)
-            # symbol_trade[message["symbol"]].append(
-            #     [message["price"], message["size"]])
+            symbol_trade[message["symbol"]].append(
+                [message["price"], message["size"]])
         elif message["type"] == "error":
             print(message)
         elif message["type"] == "reject":
