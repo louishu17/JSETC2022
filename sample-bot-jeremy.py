@@ -12,7 +12,7 @@ import time
 import socket
 import json
 from utils import Dir, PriceHistory, do_tick, get_order_id, init
-from pennying import PennyingStrategy
+from pennying2 import PennyingStrategy
 from bond import BondStrategy
 
 # ~~~~~============== CONFIGURATION  ==============~~~~~
@@ -96,13 +96,31 @@ def main():
             # Update current market info with book
             history.update(message)
 
-        # ETF strat
-        buy_orders, sell_orders = ETFStrategy.etf_strategy(history)
+        # pennying strat
+        for sym in ["XLF"]:
+            if tick % 20 != 0:
+                break
+            history_book = history.get_last(sym)
+            if history_book:
+                buy_orders, sell_orders, cancel_timers = PennyingStrategy.pennying_strategy(
+                    sym, history_book["buy"], history_book["sell"]
+                )
+                if cancel_timers:
+                    cancel_timer_dict.update(cancel_timers)
+                    id1, id2 = cancel_timers.keys()
+                    pennying_pairs[id1] = id2
+                    pennying_pairs[id2] = id1
 
-        for b in buy_orders:
-            exchange.send_add_message(**b)
-        for s in sell_orders:
-            exchange.send_add_message(**s)
+                for b in buy_orders:
+                    exchange.send_add_message(**b)
+                for s in sell_orders:
+                    exchange.send_add_message(**s)
+
+                for order_id, cancel_timer in dict(cancel_timer_dict).items():
+                    c = cancel_timer.do_tick()
+                    if c:
+                        cancel_timer_dict.pop(order_id)
+                        exchange.send_cancel_message(**c)
 
 
 class ExchangeConnection:
