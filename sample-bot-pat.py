@@ -22,17 +22,18 @@ team_name = "shinerperch"
 
 
 class BondStrategy:
-    def bondStrategy(buys, sells):
+    def bondStrategy(buys, sells, tick):
         buy_orders = []
         sell_orders = []
-        buy_orders.append(
-            dict(order_id=get_order_id(), symbol="BOND",
-                 dir=Dir.BUY, price=999, size=100)
-        )
-        sell_orders.append(
-            dict(order_id=get_order_id(), symbol="BOND",
-                 dir=Dir.SELL, price=1001, size=100)
-        )
+        if tick % 30 == 0:
+            buy_orders.append(
+                dict(order_id=get_order_id(), symbol="BOND",
+                     dir=Dir.BUY, price=999, size=100)
+            )
+            sell_orders.append(
+                dict(order_id=get_order_id(), symbol="BOND",
+                     dir=Dir.SELL, price=1001, size=100)
+            )
         return buy_orders, sell_orders
 
 
@@ -115,7 +116,7 @@ def main():
             bond_buy_msgs = bond_history_book[-1]["buy"]
             bond_sell_msgs = bond_history_book[-1]["sell"]
             buy_orders, sell_orders = BondStrategy.bondStrategy(
-                bond_buy_msgs, bond_sell_msgs)
+                bond_buy_msgs, bond_sell_msgs, tick)
 
             for b in buy_orders:
                 exchange.send_add_message(**b)
