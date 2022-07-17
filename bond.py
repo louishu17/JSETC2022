@@ -22,7 +22,7 @@ class BondStrategy:
     def bondStrategy(buys, sells, tick):
         buy_orders = []
         sell_orders = []
-        if tick % 300 == 0:
+        if tick % 500 == 0:
             buy_orders.append(
                 dict(order_id=get_order_id(), symbol="BOND",
                      dir=Dir.BUY, price=999, size=100)
