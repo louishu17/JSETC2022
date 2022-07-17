@@ -17,13 +17,13 @@ class PennyingStrategy:
         if price is None:
             # Naive price estimate
             price = (buys[0][0] + sells[0][0]) / 2
-        if max_buy + 1 < price and min_sell - 1 > price:
+        if max_buy + 2 < price and min_sell - 2 > price:
             buy_order_id = get_order_id()
             buy_orders.append(dict(
                 order_id=buy_order_id,
                 symbol=sym,
                 dir=Dir.BUY,
-                price=max_buy + 1,
+                price=max_buy + 2,
                 size=1,
                 ))
             sell_order_id = get_order_id()
@@ -31,7 +31,7 @@ class PennyingStrategy:
                 order_id=sell_order_id,
                 symbol=sym,
                 dir=Dir.SELL,
-                price=min_sell - 1,
+                price=min_sell - 2,
                 size=1,
                 ))
             cancel_timers[buy_order_id] = CancelTimer(
